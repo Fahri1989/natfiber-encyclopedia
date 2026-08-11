@@ -72,3 +72,9 @@ footer{border-top:1px solid var(--line);padding:28px max(24px,calc((100% - 1180p
   .directory-stats{grid-template-columns:1fr 1fr}
   .research-toast{left:14px;right:14px;bottom:14px}
 }
+
+
+/* ===== NatFiber v0.8 public profile alignment ===== */
+.gap-card .record-summary{line-height:1.65}
+#tab-processing .record,#tab-applications .record,#tab-gaps .record{min-height:150px}
+@media(max-width:900px){.tabs{overflow-x:auto;flex-wrap:nowrap}.tab{white-space:nowrap}}

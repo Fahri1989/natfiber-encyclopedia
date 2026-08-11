@@ -86,7 +86,10 @@
         <button class="tab" data-tab="observations">Observations</button>
         <button class="tab" data-tab="treatments">Treatments</button>
         <button class="tab" data-tab="composites">Composites</button>
+        <button class="tab" data-tab="processing">Processing</button>
+        <button class="tab" data-tab="applications">Applications</button>
         <button class="tab" data-tab="evidence">Evidence</button>
+        <button class="tab" data-tab="gaps">Research Gaps</button>
         <button class="tab" data-tab="literature">Literature</button>
       </nav>
 
@@ -126,10 +129,25 @@
         <div id="compositeGrid" class="record-grid"></div>
       </section>
 
+      <section class="tabpanel" id="tab-processing">
+        <div class="section-title"><div><span>MANUFACTURING ROUTES</span><h3>Processing methods reported in the literature</h3></div><p>Processing route is retained because matrix, fiber form, loading, and manufacturing method affect final composite behavior.</p></div>
+        <div id="processingGrid" class="record-grid"></div>
+      </section>
+
+      <section class="tabpanel" id="tab-applications">
+        <div class="section-title"><div><span>ENGINEERING USE</span><h3>Applications and maturity</h3></div><p>Commercial, demonstrated, experimental, and proposed applications are kept distinct.</p></div>
+        <div id="applicationGrid" class="record-grid"></div>
+      </section>
+
       <section class="tabpanel" id="tab-evidence">
         <div class="section-title"><div><span>EVIDENCE MAP</span><h3>How complete is the knowledge?</h3></div><p>Coverage measures database completeness—not how “good” the fiber is.</p></div>
         <div id="evidenceGrid" class="evidence-grid"></div>
         <div id="conflictBox" class="conflict-box"></div>
+      </section>
+
+      <section class="tabpanel" id="tab-gaps">
+        <div class="section-title"><div><span>OPEN QUESTIONS</span><h3>Research gaps</h3></div><p>Gaps identify where evidence is incomplete, heterogeneous, or needs method harmonization.</p></div>
+        <div id="researchGapGrid" class="record-grid"></div>
       </section>
 
       <section class="tabpanel" id="tab-literature">
@@ -140,11 +158,11 @@
   </main>
 
   <footer>
-    <div><strong>NatFiber Encyclopedia</strong> · Prototype v0.4</div>
+    <div><strong>NatFiber Encyclopedia</strong> · Prototype v0.8</div>
     <div>Scientific ranges · individual observations · source traceability · transparent evidence</div>
   </footer>
 
   <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=0.8"></script>
 </body>
 </html>

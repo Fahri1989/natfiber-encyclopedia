@@ -326,6 +326,11 @@ function releaseItemHtml(item){
     title='Accepted taxonomy';
     value=`${esc(r.genus||'')} ${esc(r.species||'')} ${esc(r.taxon_authority||'')}`;
     meta=`${esc(r.kingdom||'')} · ${esc(r.order_name||'')} · ${esc(r.family||'')}`;
+  }else if(table==='fiber_names'){
+    title=esc(r.name||item.public_label||item.record_id);
+    value=esc(r.name_type||'Name');
+    meta=`${esc(r.language||'')}${r.is_preferred?' · Preferred':''}`;
+    body=r.name_type==='Botanical synonym'?'Botanical synonym retained for taxonomy traceability; not the accepted scientific name.':'';
   }else if(table==='canonical_values'){
     title=esc(r.display_field||item.record_id);
     value=releaseValue(r);

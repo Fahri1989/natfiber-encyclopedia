@@ -43,7 +43,10 @@ function renderSummary(p) {
     ['Property observations', p.properties.length],
     ['Treatments', p.treatments.length],
     ['Composite systems', p.composites.length],
+    ['Processing routes', (p.processing||[]).length],
+    ['Applications', (p.applications||[]).length],
     ['Evidence domains', p.evidence.length],
+    ['Research gaps', (p.research_gaps||[]).length],
     ['Public references', p.references.length]
   ];
   $('#datasetSummary').innerHTML = items.map(([k,v])=>`<div class="summary-item"><strong>${esc(v)}</strong><span>${esc(k)}</span></div>`).join('');
@@ -86,6 +89,21 @@ function renderComposites(rows) {
     <div class="kv"><b>Fiber form</b><span>${esc(r.fiber_form||'—')}</span><b>Fiber content</b><span>${r.fiber_content_value??'—'} ${esc(r.fiber_content_unit||'')}</span><b>Orientation</b><span>${esc(r.orientation||'—')}</span><b>Fabrication</b><span>${esc(r.fabrication_method||'—')}</span><b>Application</b><span>${esc(r.application_context||'—')}</span></div>
     <div class="record-summary">${esc(r.property_summary||'')}</div></article>`).join('') || '<div class="state-card">No public composite records yet.</div>';
 }
+function renderProcessing(rows) {
+  $('#processingGrid').innerHTML = rows.map(r=>`<article class="record"><div class="record-top"><div><div class="record-id">${esc(r.processing_id)}</div><h4>${esc(r.process_name)}</h4></div><span class="confidence">${esc(r.process_category||'Processing')}</span></div>
+    <div class="kv"><b>Equipment</b><span>${esc(r.equipment||'—')}</span><b>Temperature</b><span>${r.temperature_c??'—'} ${r.temperature_c!=null?'°C':''}</span><b>Pressure</b><span>${esc(r.pressure||'—')}</span><b>Duration</b><span>${esc(r.duration||'—')}</span><b>Reference</b><span>${esc(r.reference_id||'—')}</span></div>
+    <div class="record-summary">${esc(r.notes||'')}</div></article>`).join('') || '<div class="state-card">No public processing records yet.</div>';
+}
+function renderApplications(rows) {
+  $('#applicationGrid').innerHTML = rows.map(r=>`<article class="record"><div class="record-top"><div><div class="record-id">${esc(r.application_id)}</div><h4>${esc(r.application_name)}</h4></div><span class="confidence">${esc(r.maturity_level||'Application')}</span></div>
+    <div class="kv"><b>Sector</b><span>${esc(r.application_sector||'—')}</span><b>Reference</b><span>${esc(r.reference_id||'—')}</span></div>
+    <div class="record-summary">${esc(r.evidence_summary||r.notes||'')}</div></article>`).join('') || '<div class="state-card">No public application records yet.</div>';
+}
+function renderResearchGaps(rows) {
+  $('#researchGapGrid').innerHTML = rows.map(r=>`<article class="record gap-card"><div class="record-top"><div><div class="record-id">${esc(r.research_gap_id)}</div><h4>${esc(r.gap)}</h4></div><span class="confidence">Priority ${esc(r.priority??'—')}</span></div>
+    <div class="record-summary"><strong>Why it matters:</strong> ${esc(r.why_it_matters||'—')}<br><br><strong>Recommended study:</strong> ${esc(r.recommended_study||'—')}</div></article>`).join('') || '<div class="state-card">No public research-gap records yet.</div>';
+}
+
 function renderEvidence(rows, conflicts) {
   $('#evidenceGrid').innerHTML = rows.map(r=>`<article class="evidence-card"><div class="evidence-row"><div class="evidence-title">${esc(r.domain)}</div><span class="evidence-level">${esc(r.evidence_level)}</span></div><div class="bar"><span style="width:${Math.max(0,Math.min(100,Number(r.coverage_pct)||0))}%"></span></div><div class="evidence-notes"><strong>${fmt(r.coverage_pct)}% coverage.</strong> ${esc(r.main_strength||'')}<br><br><em>Gap:</em> ${esc(r.main_gap||'—')}</div></article>`).join('');
   $('#conflictBox').innerHTML = conflicts.length ? `<div class="section-title"><div><span>TRANSPARENCY</span><h3>Source conflicts and editorial decisions</h3></div></div>${conflicts.map(c=>`<article class="conflict"><strong>${esc(c.issue_type)} · ${esc(c.affected_data||'')}</strong><p>${esc(c.issue_summary)} <b>Decision:</b> ${esc(c.current_decision||'')}</p></article>`).join('')}` : '';
@@ -175,7 +193,10 @@ async function loadFiber(fiberId='NF-0001') {
     renderObservations(p.properties||[]);
     renderTreatments(p.treatments||[]);
     renderComposites(p.composites||[]);
+    renderProcessing(p.processing||[]);
+    renderApplications(p.applications||[]);
     renderEvidence(p.evidence||[],p.conflicts||[]);
+    renderResearchGaps(p.research_gaps||[]);
     renderReferences(p.references||[]);
     $('#fiberProfile').hidden=false;
   } catch(err) { $('#error').textContent=`Could not load NatFiber data: ${err.message}`; $('#error').hidden=false; }
