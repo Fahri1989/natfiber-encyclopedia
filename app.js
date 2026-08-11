@@ -125,12 +125,61 @@ function renderGlobalFootprint(p){
   const commercial=dist.filter(r=>r.distribution_type==='COMMERCIAL_PRODUCTION');
   const history=prod.filter(r=>r.statistic_name==='Historical combined fibre production'&&r.geographic_level==='WORLD').sort((a,b)=>a.year-b.year);
   const hero=media.find(r=>r.is_hero)||media[0];
-  const hasGlobal=prod.length||trade.length||dist.length||media.length;
-  $('#globalHero').hidden=!hasGlobal;
+
+  const hasGlobal=Boolean(prod.length||trade.length||dist.length);
+  const hasMedia=Boolean(media.length);
+  const hasAny=hasGlobal||hasMedia;
+  const heroBox=$('#globalHero');
+  const globalTabBtn=document.querySelector('.tab[data-tab="global"]');
+  const galleryTabBtn=document.querySelector('.tab[data-tab="gallery"]');
+
+  // Hide sections completely for fibers that do not yet have global/media records.
+  if(heroBox){ heroBox.hidden=!hasAny; heroBox.style.display=hasAny?'':'none'; }
+  if(globalTabBtn){ globalTabBtn.hidden=!hasGlobal; globalTabBtn.style.display=hasGlobal?'':'none'; }
+  if(galleryTabBtn){ galleryTabBtn.hidden=!hasMedia; galleryTabBtn.style.display=hasMedia?'':'none'; }
+
+  // If user switches from a fiber with global/media data to one without it,
+  // return safely to Overview instead of leaving an empty active panel.
+  const activeHidden=(document.querySelector('.tab.active[data-tab="global"]')&&!hasGlobal)||(document.querySelector('.tab.active[data-tab="gallery"]')&&!hasMedia);
+  if(activeHidden){
+    $$('.tab').forEach(x=>x.classList.remove('active')); $$('.tabpanel').forEach(x=>x.classList.remove('active'));
+    document.querySelector('.tab[data-tab="overview"]')?.classList.add('active');
+    $('#tab-overview')?.classList.add('active');
+  }
+
+  if(!hasAny){
+    if($('#heroFiberImage')){ $('#heroFiberImage').removeAttribute('src'); $('#heroFiberImage').alt=''; }
+    if($('#heroMediaCredit')) $('#heroMediaCredit').innerHTML='';
+    if($('#globalHeroMetrics')) $('#globalHeroMetrics').innerHTML='';
+    if($('#globalMetrics')) $('#globalMetrics').innerHTML='';
+    if($('#mediaGallery')) $('#mediaGallery').innerHTML='';
+    return;
+  }
+
+  // Dynamic title follows the fiber currently opened; no hard-coded "Sisal" on Ijuk/Jute/etc.
+  const fiberName=p.fiber?.canonical_name||'';
+  const globalTitle=I18N.getLang()==='id'
+    ? `Produksi, perdagangan, dan sebaran ${fiberName}`
+    : `${fiberName} production, trade, and distribution`;
+  const heroTitle=document.querySelector('#globalHero h3');
+  const sectionTitle=document.querySelector('#tab-global .section-title h3');
+  if(heroTitle) heroTitle.textContent=globalTitle;
+  if(sectionTitle) sectionTitle.textContent=globalTitle;
+
   if(hero){
-    $('#heroFiberImage').src=mediaSrc(hero); $('#heroFiberImage').alt=I18N.getLang()==='id'?(hero.alt_text_id||hero.title):(hero.alt_text_en||hero.title);
+    $('#heroFiberImage').src=mediaSrc(hero);
+    $('#heroFiberImage').alt=I18N.getLang()==='id'?(hero.alt_text_id||hero.title):(hero.alt_text_en||hero.title);
+    $('#heroFiberImage').onerror=()=>{
+      // Do not show a broken-image icon; gallery metadata remains available.
+      $('#heroFiberImage').style.visibility='hidden';
+    };
+    $('#heroFiberImage').onload=()=>{ $('#heroFiberImage').style.visibility='visible'; };
     $('#heroMediaCredit').innerHTML=`${esc(hero.attribution_text||hero.creator||'')} · <a href="${esc(hero.license_url)}" target="_blank" rel="noopener">${esc(hero.license_name)}</a>`;
-  } else { $('#globalHero').hidden=true; }
+  } else {
+    $('#heroFiberImage').removeAttribute('src'); $('#heroFiberImage').style.visibility='hidden';
+    $('#heroMediaCredit').innerHTML='';
+  }
+
   const metrics=[
     [t('global.latestProduction'),latest?`${fmt(latest.value)} kt`:'—',latest?String(latest.year):'—'],
     [t('global.rawImports'),rawImport?`${fmt(rawImport.value)} kt`:'—',rawImport?String(rawImport.year):'—'],
@@ -147,6 +196,7 @@ function renderGlobalFootprint(p){
   $('#commercialDistribution').innerHTML=commercial.map(r=>`<span class="distribution-chip">${esc(r.place_name)}</span>`).join('') || '<div class="muted">—</div>';
   $('#historicalProduction').innerHTML=history.map(r=>`<span class="history-chip"><b>${r.year}</b> ${esc(r.value_qualifier||'=')}${fmt(r.value)} kt</span>`).join('') || '<div class="muted">—</div>';
 }
+
 function renderMedia(rows){
   $('#mediaGallery').innerHTML=rows.map(m=>`<article class="media-card"><div class="media-image-wrap"><img src="${esc(mediaSrc(m))}" alt="${esc(I18N.getLang()==='id'?(m.alt_text_id||m.title):(m.alt_text_en||m.title))}" loading="lazy" referrerpolicy="no-referrer"></div><div class="media-card-body"><span class="media-type">${esc(term(m.media_type))}</span><h4>${esc(m.title)}</h4><p>${esc(m.attribution_text||'')}</p><div class="media-links"><a href="${esc(m.source_page_url)}" target="_blank" rel="noopener">${t('gallery.source')} ↗</a><a href="${esc(m.license_url)}" target="_blank" rel="noopener">${esc(m.license_name)}</a></div>${m.modification_note?`<small>${esc(prose(m.modification_note))}</small>`:''}</div></article>`).join('') || '<div class="state-card">—</div>';
 }
