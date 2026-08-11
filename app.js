@@ -292,6 +292,10 @@ async function loadFiber(fiberId='NF-0001') {
     renderComposites(p.composites||[]);
     renderProcessing(p.processing||[]);
     renderApplications(p.applications||[]);
+    // v1.0.2: render fiber-specific global footprint and licensed media
+    // on EVERY profile load. This also hides the blocks for fibers with no data.
+    renderGlobalFootprint(p);
+    renderMedia(p.media||[]);
     renderEvidence(p.evidence||[],p.conflicts||[]);
     renderResearchGaps(p.research_gaps||[]);
     renderReferences(p.references||[]);
