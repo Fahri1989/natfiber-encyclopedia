@@ -51,6 +51,10 @@ function renderSummary(p) {
     [t('summary.applications'), (p.applications||[]).length],
     [t('summary.evidence'), p.evidence.length],
     [t('summary.gaps'), (p.research_gaps||[]).length],
+    [t('summary.production'), (p.production_stats||[]).length],
+    [t('summary.trade'), (p.trade_stats||[]).length],
+    [t('summary.distribution'), (p.distribution||[]).length],
+    [t('summary.media'), (p.media||[]).length],
     [t('summary.references'), p.references.length]
   ];
   $('#datasetSummary').innerHTML = items.map(([k,v])=>`<div class="summary-item"><strong>${esc(v)}</strong><span>${esc(k)}</span></div>`).join('');
@@ -108,6 +112,44 @@ function renderResearchGaps(rows) {
     <div class="record-summary"><strong>${t('label.whyMatters')}</strong> ${esc(prose(r.why_it_matters||'—'))}<br><br><strong>${t('label.recommendedStudy')}</strong> ${esc(prose(r.recommended_study||'—'))}</div></article>`).join('') || `<div class="state-card">${t('empty.gaps')}</div>`;
 }
 
+
+function mediaSrc(m){ return m.asset_path || m.original_file_url || ''; }
+function renderGlobalFootprint(p){
+  const prod=p.production_stats||[], trade=p.trade_stats||[], dist=p.distribution||[], media=p.media||[];
+  const modern=prod.filter(r=>r.statistic_name==='Annual commercial fibre production'&&r.geographic_level==='WORLD').sort((a,b)=>a.year-b.year);
+  const latest=modern.find(r=>r.is_latest_verified)||modern.at(-1);
+  const producers=prod.filter(r=>r.statistic_name==='Annual commercial fibre production'&&r.geographic_level==='COUNTRY'&&r.year===latest?.year).sort((a,b)=>Number(b.value)-Number(a.value));
+  const top5=producers.slice(0,5); const top5sum=top5.reduce((s,r)=>s+Number(r.value||0),0); const top5pct=latest?100*top5sum/Number(latest.value):0;
+  const rawImport=trade.find(r=>r.trade_flow==='IMPORT'&&r.product_form==='RAW_FIBRE'&&r.geographic_level==='WORLD'&&r.year===latest?.year);
+  const native=dist.filter(r=>r.distribution_type==='NATIVE_RANGE');
+  const commercial=dist.filter(r=>r.distribution_type==='COMMERCIAL_PRODUCTION');
+  const history=prod.filter(r=>r.statistic_name==='Historical combined fibre production'&&r.geographic_level==='WORLD').sort((a,b)=>a.year-b.year);
+  const hero=media.find(r=>r.is_hero)||media[0];
+  const hasGlobal=prod.length||trade.length||dist.length||media.length;
+  $('#globalHero').hidden=!hasGlobal;
+  if(hero){
+    $('#heroFiberImage').src=mediaSrc(hero); $('#heroFiberImage').alt=I18N.getLang()==='id'?(hero.alt_text_id||hero.title):(hero.alt_text_en||hero.title);
+    $('#heroMediaCredit').innerHTML=`${esc(hero.attribution_text||hero.creator||'')} · <a href="${esc(hero.license_url)}" target="_blank" rel="noopener">${esc(hero.license_name)}</a>`;
+  } else { $('#globalHero').hidden=true; }
+  const metrics=[
+    [t('global.latestProduction'),latest?`${fmt(latest.value)} kt`:'—',latest?String(latest.year):'—'],
+    [t('global.rawImports'),rawImport?`${fmt(rawImport.value)} kt`:'—',rawImport?String(rawImport.year):'—'],
+    [t('global.top5'),latest?`${fmt(top5pct)}%`:'—',latest?String(latest.year):'—'],
+    [t('global.ecological'),t('global.notAssessed'),'']
+  ];
+  const metricHtml=metrics.map(([k,v,y])=>`<div class="global-metric"><span>${esc(k)}</span><strong>${esc(v)}</strong><small>${esc(y)}</small></div>`).join('');
+  $('#globalHeroMetrics').innerHTML=metricHtml; $('#globalMetrics').innerHTML=metricHtml;
+  const max=Math.max(...modern.map(r=>Number(r.value||0)),1);
+  $('#productionTrend').innerHTML=modern.map(r=>`<div class="trend-col"><div class="trend-value">${fmt(r.value)}</div><div class="trend-bar-wrap"><div class="trend-bar" style="height:${Math.max(8,100*Number(r.value)/max)}%"></div></div><div class="trend-year">${r.year}</div></div>`).join('') || '<div class="muted">—</div>';
+  const pmax=Math.max(...top5.map(r=>Number(r.value||0)),1);
+  $('#producerBars').innerHTML=top5.map(r=>`<div class="producer-row"><div class="producer-label"><b>${esc(r.country_or_region)}</b><span>${fmt(r.value)} kt</span></div><div class="producer-track"><span style="width:${100*Number(r.value)/pmax}%"></span></div></div>`).join('') || '<div class="muted">—</div>';
+  $('#nativeRangeBox').innerHTML=native.map(r=>`<div class="distribution-card"><strong>${esc(r.place_name)}</strong><p>${esc(prose(r.description||''))}</p><span>${esc(r.source_organization||'')}</span></div>`).join('') || '<div class="muted">—</div>';
+  $('#commercialDistribution').innerHTML=commercial.map(r=>`<span class="distribution-chip">${esc(r.place_name)}</span>`).join('') || '<div class="muted">—</div>';
+  $('#historicalProduction').innerHTML=history.map(r=>`<span class="history-chip"><b>${r.year}</b> ${esc(r.value_qualifier||'=')}${fmt(r.value)} kt</span>`).join('') || '<div class="muted">—</div>';
+}
+function renderMedia(rows){
+  $('#mediaGallery').innerHTML=rows.map(m=>`<article class="media-card"><div class="media-image-wrap"><img src="${esc(mediaSrc(m))}" alt="${esc(I18N.getLang()==='id'?(m.alt_text_id||m.title):(m.alt_text_en||m.title))}" loading="lazy" referrerpolicy="no-referrer"></div><div class="media-card-body"><span class="media-type">${esc(term(m.media_type))}</span><h4>${esc(m.title)}</h4><p>${esc(m.attribution_text||'')}</p><div class="media-links"><a href="${esc(m.source_page_url)}" target="_blank" rel="noopener">${t('gallery.source')} ↗</a><a href="${esc(m.license_url)}" target="_blank" rel="noopener">${esc(m.license_name)}</a></div>${m.modification_note?`<small>${esc(prose(m.modification_note))}</small>`:''}</div></article>`).join('') || '<div class="state-card">—</div>';
+}
 function renderEvidence(rows, conflicts) {
   $('#evidenceGrid').innerHTML = rows.map(r=>`<article class="evidence-card"><div class="evidence-row"><div class="evidence-title">${esc(prose(r.domain))}</div><span class="evidence-level">${esc(term(r.evidence_level))}</span></div><div class="bar"><span style="width:${Math.max(0,Math.min(100,Number(r.coverage_pct)||0))}%"></span></div><div class="evidence-notes"><strong>${fmt(r.coverage_pct)}% ${t('label.coverage')}.</strong> ${esc(prose(r.main_strength||''))}<br><br><em>${t('label.gap')}</em> ${esc(prose(r.main_gap||'—'))}</div></article>`).join('');
   $('#conflictBox').innerHTML = conflicts.length ? `<div class="section-title"><div><span>${t('label.transparency')}</span><h3>${t('label.conflictTitle')}</h3></div></div>${conflicts.map(c=>`<article class="conflict"><strong>${esc(prose(c.issue_type))} · ${esc(prose(c.affected_data||''))}</strong><p>${esc(prose(c.issue_summary))} <b>${t('label.decision')}</b> ${esc(prose(c.current_decision||''))}</p></article>`).join('')}` : '';
@@ -232,6 +274,7 @@ I18N.onChange(() => {
     renderSummary(p); renderCanonical(p.canonical_values||[]); renderChemistry(p.chemical_composition||[]);
     renderMorphology(p.morphology||[]); renderObservations(p.properties||[]); renderTreatments(p.treatments||[]);
     renderComposites(p.composites||[]); renderProcessing(p.processing||[]); renderApplications(p.applications||[]);
+    renderGlobalFootprint(p); renderMedia(p.media||[]);
     renderEvidence(p.evidence||[],p.conflicts||[]); renderResearchGaps(p.research_gaps||[]); renderReferences(p.references||[]);
   }
 });

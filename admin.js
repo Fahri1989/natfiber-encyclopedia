@@ -7,7 +7,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const I18N = window.NF_I18N;
 const t = I18N.t, term = I18N.term, prose = I18N.prose;
-const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null, review:null, releasePreview:null };
+const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null, review:null, releasePreview:null, supplementPreview:null };
 
 const clean = obj => Object.fromEntries(Object.entries(obj).filter(([,v]) => v !== '' && v !== null && v !== undefined));
 const nullable = v => v === '' ? null : v;
@@ -141,7 +141,7 @@ function switchView(view){
   $(`#view-${view}`).classList.add('active');
   $('#viewTitle').textContent={dashboard:t('admin.dashboard'),fibers:t('admin.manageFibers'),entry:t('admin.input'),review:t('admin.reviewQueue'),preview:t('admin.releasePreview'),audit:t('admin.auditLog')}[view]||view;
   if(view==='review') loadReviewQueue();
-  if(view==='preview') loadReleasePreview();
+  if(view==='preview'){ loadReleasePreview(); loadSupplementPreview(); }
   if(view==='audit') loadAudit();
 }
 
@@ -469,6 +469,31 @@ async function loadReleasePreview(){
 }
 
 
+
+function supplementItemHtml(item){
+ const r=item.record||{}; const table=item.data_table; let title=item.public_label||item.record_id, value='', meta='', body='';
+ if(table==='fiber_production_stats'){title=`${r.year} · ${r.country_or_region}`;value=`${r.value_qualifier||'='}${fmt(r.value)} ${esc(r.unit||'')}`;meta=`${esc(r.commodity_definition||'')} · ${esc(r.verification_status||'')}`;body=esc(r.definition_warning||'');}
+ else if(table==='fiber_trade_stats'){title=`${r.trade_flow} · ${r.product_form} · ${r.country_or_region}`;value=`${fmt(r.value)} ${esc(r.unit||'')}`;meta=`${r.year} · ${esc(r.commodity_definition||'')}`;body=esc(r.definition_warning||'');}
+ else if(table==='fiber_distribution'){title=`${r.distribution_type} · ${r.place_name}`;value=esc(r.region_name||'');meta=esc(r.source_organization||'');body=esc(r.description||'');}
+ else if(table==='fiber_media'){title=esc(r.title);value=esc(r.license_name||'');meta=esc(r.creator||'');body=`<div class="supplement-media"><img src="${esc(r.original_file_url||r.asset_path||'')}" alt="${esc(r.alt_text_id||r.title)}" loading="lazy"><div><p>${esc(r.attribution_text||'')}</p><a href="${esc(r.source_page_url)}" target="_blank" rel="noopener">${t('gallery.source')} ↗</a></div></div>`;}
+ else if(table==='conflicts'){title=esc(r.affected_data||r.issue_type);value=esc(r.status||'');meta=esc(r.risk||'');body=esc(r.current_decision||r.issue_summary||'');}
+ else if(table==='references'){title=esc(r.title);value=esc(r.year||'');meta=esc(r.publisher||r.journal_book||'');body=esc(r.notes||'');}
+ return `<div class="release-item ${table}"><div class="release-item-top"><div><div class="release-record-id">${esc(item.record_id)}</div><h4>${title}</h4></div><span class="release-state ${String(item.editor_status||'selected').toLowerCase()}">${esc(item.editor_status||'SELECTED')}</span></div>${value?`<div class="release-value">${value}</div>`:''}${meta?`<div class="release-meta">${meta}</div>`:''}${body?`<div class="release-body">${body}</div>`:''}</div>`;
+}
+async function loadSupplementPreview(){
+ const body=$('#supplementPreviewBody'); if(!body)return; body.innerHTML='<div class="muted">Memuat GLOBAL_MEDIA_V1…</div>';
+ try{
+  const d=await rpc('get_natfiber_supplement_preview',{target_fiber_id:'NF-0002',target_release_group:'GLOBAL_MEDIA_V1'}); if(!d)throw new Error('Supplement preview unavailable.');
+  state.supplementPreview=d; const items=d.items||[],s=d.summary||{}; const groups={}; items.forEach(i=>(groups[i.section_key]??=[]).push(i));
+  $('#supplementSummary').innerHTML=[[t('admin.supplementSelected'),s.selected_items||0],[t('admin.supplementApproved'),s.approved_items||0],[t('admin.onHold'),s.hold_items||0],[t('admin.sections'),Object.keys(groups).length]].map(([k,v])=>`<div class="summary-card"><b>${v}</b><span>${esc(k)}</span></div>`).join('');
+  const allApproved=Number(s.selected_items||0)>0&&Number(s.selected_items)===Number(s.approved_items||0); const alreadyPublic=(items.filter(i=>['fiber_production_stats','fiber_trade_stats','fiber_distribution','fiber_media'].includes(i.data_table)).every(i=>i.record?.is_public));
+  const a=$('#approveSupplementBtn'),p=$('#publishSupplementBtn'); a.disabled=!(state.role==='ADMIN'&&!allApproved&&!alreadyPublic); p.disabled=!(state.role==='ADMIN'&&allApproved&&!alreadyPublic);
+  $('#supplementStatus').innerHTML=alreadyPublic?`<strong>${t('admin.supplementPublished')} ✓</strong>`:allApproved?'<strong>GLOBAL_MEDIA_V1 APPROVED.</strong> Siap untuk publikasi suplemen.':`<strong>SUPPLEMENT PREVIEW — PRIVATE.</strong> ${s.selected_items||0} item masih privat.`;
+  const labels={production:'1. Production Statistics',trade:'2. Trade & Availability',distribution:'3. Distribution',media:'4. Licensed Media',conflicts:'5. Statistical Conflict',references:'6. Source Registry'};
+  body.innerHTML=Object.entries(labels).map(([key,label])=>{const rows=groups[key]||[];if(!rows.length)return'';return `<details class="release-section"${key==='media'||key==='production'?' open':''}><summary><span>${esc(label)}</span><b>${rows.length}</b></summary><div class="release-section-body">${rows.map(supplementItemHtml).join('')}</div></details>`}).join('');
+ }catch(err){body.innerHTML=`<div class="message error">${esc(err.message)}</div>`;}
+}
+
 async function loadAudit(){
   const {data,error}=await sb.from('editorial_audit_log').select('*').order('occurred_at',{ascending:false}).limit(100);
   if(error){ $('#auditTable').innerHTML=`<div class="message error">${error.message}</div>`; return; }
@@ -507,7 +532,7 @@ I18N.onChange(() => {
   if(state.dashboard){ renderDashboard(); renderFiberList($('#fiberSearch')?.value||''); }
   const active=document.querySelector('.view.active')?.id;
   if(active==='view-review') loadReviewQueue();
-  if(active==='view-preview') loadReleasePreview();
+  if(active==='view-preview'){ loadReleasePreview(); loadSupplementPreview(); }
   if(active==='view-audit') loadAudit();
   const currentView = active?.replace('view-','') || 'dashboard';
   $('#viewTitle').textContent={dashboard:t('admin.dashboard'),fibers:t('admin.manageFibers'),entry:t('admin.input'),review:t('admin.reviewQueue'),preview:t('admin.releasePreview'),audit:t('admin.auditLog')}[currentView]||currentView;
@@ -684,6 +709,10 @@ $('#markCandidateBtn')?.addEventListener('click',async()=>{
 });
 
 
+
+$('#supplementRefreshBtn')?.addEventListener('click',loadSupplementPreview);
+$('#approveSupplementBtn')?.addEventListener('click',async()=>{if(state.role!=='ADMIN')return; if(!confirm('Approve GLOBAL_MEDIA_V1 supplement?\n\nThis does not publish the data yet.'))return; try{await rpc('approve_natfiber_supplement',{target_fiber_id:'NF-0002',target_release_group:'GLOBAL_MEDIA_V1'});await loadSupplementPreview();}catch(err){alert(err.message)}});
+$('#publishSupplementBtn')?.addEventListener('click',async()=>{if(state.role!=='ADMIN')return; if(!confirm('PUBLISH GLOBAL_MEDIA_V1 SUPPLEMENT?\n\nThis will make the approved production, trade, distribution and licensed-media records public.'))return; try{const r=await rpc('publish_natfiber_supplement',{target_fiber_id:'NF-0002',target_release_group:'GLOBAL_MEDIA_V1'});alert(`Supplement published: ${r.published_items} items`);await loadSupplementPreview();}catch(err){alert(err.message)}});
 $('#auditRefreshBtn').addEventListener('click',loadAudit);
 
 sb.auth.onAuthStateChange((event,session)=>{

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,wght@1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=0.9" />
+  <link rel="stylesheet" href="styles.css?v=1.0" />
 </head>
 <body>
   <header class="topbar">
@@ -76,10 +76,25 @@
         <div class="identity-grid" id="identityGrid"></div>
       </div>
 
+      <section id="globalHero" class="global-hero" hidden>
+        <figure class="global-hero-media">
+          <img id="heroFiberImage" alt="" loading="eager" />
+          <figcaption id="heroMediaCredit"></figcaption>
+        </figure>
+        <div class="global-hero-content">
+          <div class="eyebrow" data-i18n="global.eyebrow">JEJAK GLOBAL & KETERSEDIAAN</div>
+          <h3 data-i18n="global.title">Produksi, perdagangan, dan sebaran Sisal</h3>
+          <p data-i18n="global.desc">Produksi komersial ditampilkan terpisah dari kelimpahan ekologis. Data mengikuti definisi komoditas sumber.</p>
+          <div id="globalHeroMetrics" class="global-hero-metrics"></div>
+        </div>
+      </section>
+
       <div id="datasetSummary" class="dataset-summary"></div>
 
       <nav class="tabs" aria-label="Fiber sections">
         <button class="tab active" data-tab="overview"><span data-i18n="tab.overview">Overview</span></button>
+        <button class="tab" data-tab="global"><span data-i18n="tab.global">Produksi & Sebaran</span></button>
+        <button class="tab" data-tab="gallery"><span data-i18n="tab.gallery">Galeri</span></button>
         <button class="tab" data-tab="properties"><span data-i18n="tab.properties">Properties</span></button>
         <button class="tab" data-tab="chemistry"><span data-i18n="tab.chemistry">Chemistry</span></button>
         <button class="tab" data-tab="morphology"><span data-i18n="tab.morphology">Morphology</span></button>
@@ -97,6 +112,26 @@
         <div class="section-title"><div><span data-i18n="overview.eyebrow">CANONICAL DISPLAY</span><h3 data-i18n="overview.title">Current verified engineering ranges</h3></div><p data-i18n="overview.desc">Ranges remain linked to their original sources and conditions.</p></div>
         <div id="canonicalGrid" class="metric-grid"></div>
         <div class="notice"><strong data-i18n="overview.noticeTitle">Cara membaca NatFiber:</strong> <span data-i18n="overview.notice">rentang bukan konstanta universal. Sifat serat alam berubah menurut asal bahan, ekstraksi, pengondisian, geometri, metode uji, dan perlakuan.</span></div>
+      </section>
+
+      <section class="tabpanel" id="tab-global">
+        <div class="section-title"><div><span data-i18n="global.eyebrow">JEJAK GLOBAL & KETERSEDIAAN</span><h3 data-i18n="global.title">Produksi, perdagangan, dan sebaran Sisal</h3></div><p data-i18n="global.desc">Produksi komersial ditampilkan terpisah dari kelimpahan ekologis. Data mengikuti definisi komoditas sumber.</p></div>
+        <div id="globalMetrics" class="global-metrics"></div>
+        <div class="global-two-col">
+          <article class="global-panel"><h4 data-i18n="global.trend">Tren produksi SISAL saja</h4><div id="productionTrend" class="production-chart"></div><p class="muted" data-i18n="global.trendNote">Seri FAO SISAL; tidak termasuk henequen dan fique.</p></article>
+          <article class="global-panel"><h4 data-i18n="global.producers">Produsen utama 2023</h4><div id="producerBars" class="producer-bars"></div></article>
+        </div>
+        <div class="global-two-col">
+          <article class="global-panel"><h4 data-i18n="global.native">Asal alami</h4><div id="nativeRangeBox"></div></article>
+          <article class="global-panel"><h4 data-i18n="global.commercialRegions">Produksi komersial saat ini</h4><div id="commercialDistribution"></div></article>
+        </div>
+        <article class="global-panel historical-panel"><h4 data-i18n="global.historical">Konteks historis terpisah</h4><div id="historicalProduction"></div><p class="muted" data-i18n="global.historicalNote">Seri lama menggabungkan Sisal + Henequen dan tidak boleh disambung langsung ke seri SISAL saja.</p></article>
+      </section>
+
+      <section class="tabpanel" id="tab-gallery">
+        <div class="section-title"><div><span data-i18n="gallery.eyebrow">MEDIA DENGAN LISENSI TERLACAK</span><h3 data-i18n="gallery.title">Galeri tanaman, serat, dan proses</h3></div><p data-i18n="gallery.desc">Setiap media menyimpan pembuat, sumber, lisensi, atribusi, dan catatan modifikasi.</p></div>
+        <div class="notice" data-i18n="gallery.externalNote">Gambar dimuat dari berkas asli Wikimedia Commons; provenance dan lisensi disimpan dalam NatFiber.</div>
+        <div id="mediaGallery" class="media-gallery"></div>
       </section>
 
       <section class="tabpanel" id="tab-properties">
@@ -162,8 +197,8 @@
     <div data-i18n="footer.right">Rentang ilmiah · observasi individual · keterlacakan sumber · bukti transparan</div>
   </footer>
 
-  <script src="i18n.js?v=0.9"></script>
+  <script src="i18n.js?v=1.0"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=0.9"></script>
+  <script src="app.js?v=1.0"></script>
 </body>
 </html>
