@@ -47,13 +47,14 @@
     <aside class="sidebar">
       <div class="side-brand">
         <div class="brand-mark small">NF</div>
-        <div><strong>NatFiber</strong><span>Editor v0.3</span></div>
+        <div><strong>NatFiber</strong><span>Editor v0.5</span></div>
       </div>
 
       <nav class="side-nav">
         <button class="nav-btn active" data-view="dashboard">Dashboard</button>
         <button class="nav-btn" data-view="fibers">Serat</button>
         <button class="nav-btn" data-view="entry">Input Data</button>
+        <button class="nav-btn" data-view="review">Review Queue</button>
         <button class="nav-btn" data-view="audit">Audit Log</button>
         <a class="nav-link" href="./" target="_blank" rel="noopener">Buka Public Site ↗</a>
       </nav>
@@ -269,6 +270,64 @@
             <div class="span-2"><button class="btn primary" type="submit">Simpan Composite</button></div>
           </form>
           <p id="compositeMessage" class="message"></p>
+        </article>
+      </section>
+
+
+      <section class="view" id="view-review">
+        <article class="panel review-hero">
+          <div>
+            <span class="eyebrow">HUMAN VERIFICATION GATE</span>
+            <h3>NF-0002 Sisal — Review Queue</h3>
+            <p>Review source-resolved evidence before final VERIFIED/PUBLISHED status. Editor sign-off is recorded separately from the AI-assisted source-review pass.</p>
+          </div>
+          <div class="review-hero-actions">
+            <button id="reviewRefreshBtn" class="btn secondary compact">Refresh</button>
+          </div>
+        </article>
+
+        <div id="reviewSummary" class="summary-grid review-summary"></div>
+
+        <div class="review-tabs">
+          <button class="review-tab active" data-review-tab="gates">Verification Gates</button>
+          <button class="review-tab" data-review-tab="canonical">Canonical Candidates</button>
+          <button class="review-tab" data-review-tab="conflicts">Methodological Conflicts</button>
+        </div>
+
+        <article class="panel review-pane active" id="review-gates">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">12 SOURCE GATES</span>
+              <h3>Source Verification</h3>
+            </div>
+          </div>
+          <div id="verificationQueue" class="review-list"></div>
+        </article>
+
+        <article class="panel review-pane" id="review-canonical">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">METHOD-AWARE DISPLAY</span>
+              <h3>Canonical Candidates</h3>
+            </div>
+          </div>
+          <div id="canonicalQueue" class="table-wrap"></div>
+        </article>
+
+        <article class="panel review-pane" id="review-conflicts">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">TRANSPARENCY</span>
+              <h3>Methodological Conflicts</h3>
+            </div>
+          </div>
+          <div id="conflictQueue" class="review-list"></div>
+        </article>
+
+        <article class="panel signoff-note">
+          <strong>Editor sign-off ≠ publish.</strong>
+          Menandatangani item hanya menyatakan bahwa Prof telah memeriksa bukti/sumber terkait.
+          Status publik Sisal tetap PRIVATE/RESEARCH sampai seluruh release gate dinyatakan layak.
         </article>
       </section>
 

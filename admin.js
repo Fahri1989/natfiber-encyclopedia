@@ -5,7 +5,7 @@ const sb = createClient(supabaseUrl, publishableKey);
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null };
+const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null, review:null };
 
 const clean = obj => Object.fromEntries(Object.entries(obj).filter(([,v]) => v !== '' && v !== null && v !== undefined));
 const nullable = v => v === '' ? null : v;
@@ -128,9 +128,131 @@ function switchView(view){
   $$('.view').forEach(v=>v.classList.remove('active'));
   $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
   $(`#view-${view}`).classList.add('active');
-  $('#viewTitle').textContent={dashboard:'Dashboard',fibers:'Kelola Serat',entry:'Input Data',audit:'Audit Log'}[view]||view;
+  $('#viewTitle').textContent={dashboard:'Dashboard',fibers:'Kelola Serat',entry:'Input Data',review:'Review Queue',audit:'Audit Log'}[view]||view;
+  if(view==='review') loadReviewQueue();
   if(view==='audit') loadAudit();
 }
+
+
+async function loadReviewQueue(){
+  const box=$('#verificationQueue');
+  box.innerHTML='<div class="muted">Memuat verification queue…</div>';
+  try{
+    const [{data:gates,error:gateErr},{data:refs,error:refErr},{data:canon,error:canErr},{data:conflicts,error:confErr}] = await Promise.all([
+      sb.from('verification_log').select('*').eq('fiber_id','NF-0002').order('verification_id'),
+      sb.from('references').select('reference_id,title,year,journal_book,doi,url,verification_status').gte('reference_id','REF-000019').lte('reference_id','REF-000030'),
+      sb.from('canonical_values').select('*').eq('fiber_id','NF-0002').order('display_order'),
+      sb.from('conflicts').select('*').eq('fiber_id','NF-0002').order('conflict_id')
+    ]);
+    if(gateErr) throw gateErr;if(refErr)throw refErr;if(canErr)throw canErr;if(confErr)throw confErr;
+
+    const refMap=Object.fromEntries((refs||[]).map(r=>[r.reference_id,r]));
+    state.review={gates:gates||[],refs:refs||[],canon:canon||[],conflicts:conflicts||[]};
+
+    const signed=state.review.gates.filter(g=>g.decision==='EDITOR_SIGNED_OFF').length;
+    const pending=state.review.gates.length-signed;
+    const tablePending=state.review.gates.filter(g=>String(g.value_match||'').includes('PENDING')).length;
+    const reviewedCanon=state.review.canon.filter(c=>c.status==='REVIEWED_CANDIDATE').length;
+    $('#reviewSummary').innerHTML=[
+      ['Verification gates',state.review.gates.length],
+      ['Editor signed',signed],
+      ['Pending sign-off',pending],
+      ['Table/PDF pending',tablePending],
+      ['Canonical candidates',reviewedCanon]
+    ].map(([k,v])=>`<div class="summary-card"><b>${v}</b><span>${k}</span></div>`).join('');
+
+    box.innerHTML=state.review.gates.map(g=>{
+      const r=refMap[g.reference_id]||{};
+      const signedOff=g.decision==='EDITOR_SIGNED_OFF';
+      const sourceUrl=r.url|| (r.doi?`https://doi.org/${r.doi}`:'');
+      const pendingTable=String(g.value_match||'').includes('PENDING');
+      return `<article class="review-item ${signedOff?'signed':''}">
+        <div class="review-item-head">
+          <div>
+            <div class="review-code">${g.verification_id} · ${g.reference_id||''}</div>
+            <h4>${esc(r.title||g.field_or_property||g.record_id)}</h4>
+            <div class="review-meta">${esc(r.year||'')} · ${esc(r.journal_book||'')} · ${esc(r.verification_status||'')}</div>
+          </div>
+          <span class="review-decision ${signedOff?'signed':'pending'}">${signedOff?'EDITOR SIGNED':'PENDING'}</span>
+        </div>
+
+        <div class="review-grid">
+          <div><b>Scope</b><span>${esc(g.field_or_property||'—')}</span></div>
+          <div><b>Reported</b><span>${esc(g.reported_value||'—')} ${esc(g.unit||'')}</span></div>
+          <div><b>Value match</b><span class="${pendingTable?'pending-text':''}">${esc(g.value_match||'—')}</span></div>
+          <div><b>Method checked</b><span>${esc(g.method_condition_checked||'—')}</span></div>
+        </div>
+
+        <p class="review-note">${esc(g.decision_note||'')}</p>
+
+        <div class="review-actions">
+          ${sourceUrl?`<a class="btn secondary compact source-btn" href="${esc(sourceUrl)}" target="_blank" rel="noopener">Open source ↗</a>`:''}
+          ${!signedOff && state.role==='ADMIN' ? `<button class="btn primary compact signoff-btn" data-verification="${esc(g.verification_id)}">Editor sign-off</button>` : ''}
+        </div>
+      </article>`;
+    }).join('') || '<div class="muted">Belum ada verification gate.</div>';
+
+    box.querySelectorAll('.signoff-btn').forEach(btn=>btn.addEventListener('click',()=>editorSignoff(btn.dataset.verification)));
+
+    renderCanonicalReview();
+    renderConflictReview();
+  }catch(err){
+    box.innerHTML=`<div class="message error">${esc(err.message)}</div>`;
+  }
+}
+
+async function editorSignoff(id){
+  const gate=state.review?.gates?.find(g=>g.verification_id===id);
+  if(!gate)return;
+
+  const extra = String(gate.value_match||'').includes('PENDING')
+    ? '\n\nCATATAN: Item ini masih berlabel PENDING_TABLE_SIGNOFF. Lanjutkan hanya jika Anda sudah memeriksa tabel/PDF sumber secara langsung.'
+    : '';
+
+  const ok=confirm(
+    `Editor sign-off ${id}?\n\nSaya menyatakan telah memeriksa sumber, nilai/unit/konteks yang relevan.${extra}\n\nSign-off tidak mempublikasikan data.`
+  );
+  if(!ok)return;
+
+  const stamp=new Date().toISOString();
+  const oldNote=gate.decision_note||'';
+  const newNote=`${oldNote} | EDITOR SIGN-OFF by ${state.user.email} at ${stamp}.`;
+  const {error}=await sb.from('verification_log').update({
+    verifier:state.user.email,
+    decision:'EDITOR_SIGNED_OFF',
+    verification_date:stamp,
+    decision_note:newNote
+  }).eq('verification_id',id);
+  if(error){alert(error.message);return;}
+  await loadReviewQueue();
+}
+
+function renderCanonicalReview(){
+  const rows=state.review?.canon||[];
+  $('#canonicalQueue').innerHTML=`<table class="data-table"><thead><tr>
+    <th>Field</th><th>Candidate</th><th>Evidence</th><th>Gate</th><th>Status</th><th>Method warning</th>
+  </tr></thead><tbody>${rows.map(c=>`<tr>
+    <td><strong>${esc(c.display_field)}</strong></td>
+    <td>${fmt(c.min_value)}${Number(c.min_value)!==Number(c.max_value)?`–${fmt(c.max_value)}`:''} ${esc(c.unit||'')}</td>
+    <td>${esc(c.confidence||'')}</td><td>${esc(c.verification_gate||'')}</td>
+    <td><span class="status ${statusClass(c.status)}">${esc(c.status||'')}</span></td>
+    <td>${esc(c.method_condition_warning||'—')}</td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function renderConflictReview(){
+  const rows=state.review?.conflicts||[];
+  $('#conflictQueue').innerHTML=rows.map(c=>`<article class="review-item conflict-review">
+    <div class="review-item-head"><div><div class="review-code">${esc(c.conflict_id)}</div><h4>${esc(c.affected_data||c.issue_type)}</h4></div>
+    <span class="review-decision monitor">${esc(c.status)}</span></div>
+    <p>${esc(c.issue_summary||'')}</p>
+    <div class="review-grid">
+      <div><b>Decision</b><span>${esc(c.current_decision||'—')}</span></div>
+      <div><b>Aggregation</b><span>${esc(c.canonical_aggregation||'—')}</span></div>
+    </div>
+  </article>`).join('');
+}
+
 
 async function loadAudit(){
   const {data,error}=await sb.from('editorial_audit_log').select('*').order('occurred_at',{ascending:false}).limit(100);
@@ -279,6 +401,15 @@ $('#compositeForm').addEventListener('submit',async e=>{
     e.currentTarget.reset();msg('#compositeMessage',`Tersimpan: ${payload.composite_id}`,'success');await refreshDashboard();
   }catch(err){msg('#compositeMessage',err.message,'error')}
 });
+
+
+$$('.review-tab').forEach(b=>b.addEventListener('click',()=>{
+  $$('.review-tab').forEach(x=>x.classList.remove('active'));
+  $$('.review-pane').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  $(`#review-${b.dataset.reviewTab}`).classList.add('active');
+}));
+$('#reviewRefreshBtn')?.addEventListener('click',loadReviewQueue);
 
 $('#auditRefreshBtn').addEventListener('click',loadAudit);
 
