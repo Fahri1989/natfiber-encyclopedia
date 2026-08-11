@@ -16,6 +16,15 @@ function msg(id, text='', type=''){
   const el=$(id); el.textContent=text; el.className=`message ${type}`;
 }
 function statusClass(s=''){ return String(s).toLowerCase().replace(/[^a-z]+/g,''); }
+function esc(v=''){
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function fmt(v){
+  if(v === null || v === undefined || v === '') return '—';
+  const n=Number(v);
+  if(!Number.isFinite(n)) return esc(v);
+  return new Intl.NumberFormat('en-US',{maximumFractionDigits:4}).format(n);
+}
 
 async function rpc(name,args={}){
   const {data,error}=await sb.rpc(name,args);
