@@ -140,7 +140,7 @@ async function loadReviewQueue(){
   try{
     const [{data:gates,error:gateErr},{data:refs,error:refErr},{data:canon,error:canErr},{data:conflicts,error:confErr}] = await Promise.all([
       sb.from('verification_log').select('*').eq('fiber_id','NF-0002').order('verification_id'),
-      sb.from('references').select('reference_id,title,year,journal_book,doi,url,verification_status').gte('reference_id','REF-000019').lte('reference_id','REF-000030'),
+      sb.from('references').select('reference_id,title,year,journal_book,doi,url,verification_status').gte('reference_id','REF-000019').lte('reference_id','REF-000099'),
       sb.from('canonical_values').select('*').eq('fiber_id','NF-0002').order('display_order'),
       sb.from('conflicts').select('*').eq('fiber_id','NF-0002').order('conflict_id')
     ]);
@@ -150,16 +150,30 @@ async function loadReviewQueue(){
     state.review={gates:gates||[],refs:refs||[],canon:canon||[],conflicts:conflicts||[]};
 
     const signed=state.review.gates.filter(g=>g.decision==='EDITOR_SIGNED_OFF').length;
-    const pending=state.review.gates.length-signed;
-    const tablePending=state.review.gates.filter(g=>String(g.value_match||'').includes('PENDING')).length;
+    const ready=state.review.gates.filter(g=>g.decision==='READY_FOR_EDITOR_SIGNOFF').length;
+    const quarantined=state.review.gates.filter(g=>g.decision!=='READY_FOR_EDITOR_SIGNOFF' && g.decision!=='EDITOR_SIGNED_OFF').length;
     const reviewedCanon=state.review.canon.filter(c=>c.status==='REVIEWED_CANDIDATE').length;
     $('#reviewSummary').innerHTML=[
       ['Verification gates',state.review.gates.length],
       ['Editor signed',signed],
-      ['Pending sign-off',pending],
-      ['Table/PDF pending',tablePending],
+      ['Ready to sign',ready],
+      ['Quarantined/pending',quarantined],
       ['Canonical candidates',reviewedCanon]
     ].map(([k,v])=>`<div class="summary-card"><b>${v}</b><span>${k}</span></div>`).join('');
+
+    const candidateBtn=$('#markCandidateBtn');
+    const currentFiber=state.fibers.find(f=>f.fiber_id==='NF-0002');
+    const alreadyCandidate=currentFiber?.publication_status==='candidate';
+    const candidateEligible=state.role==='ADMIN' && ready===0 && signed>0 && !alreadyCandidate;
+    candidateBtn.disabled=!candidateEligible;
+    candidateBtn.textContent=alreadyCandidate?'Candidate ✓':'Mark Publishable Candidate';
+    $('#candidateReadiness').innerHTML = alreadyCandidate
+      ? '<strong>NF-0002 is a PUBLISHABLE CANDIDATE.</strong> It remains PRIVATE until a separate ADMIN publish decision.'
+      : ready>0
+        ? `<strong>Candidate gate belum selesai.</strong> ${ready} item terverifikasi masih membutuhkan human editor sign-off. ${quarantined} item pending/non-core tetap dikarantina.`
+        : signed>0
+          ? `<strong>Core human sign-off selesai.</strong> ${quarantined} item pending/non-core tetap dikarantina. ADMIN dapat menandai NF-0002 sebagai Publishable Candidate tanpa mempublikasikannya.`
+          : '<strong>Belum ada human sign-off.</strong> Tinjau gate yang berstatus READY_FOR_EDITOR_SIGNOFF.';
 
     box.innerHTML=state.review.gates.map(g=>{
       const r=refMap[g.reference_id]||{};
@@ -173,7 +187,7 @@ async function loadReviewQueue(){
             <h4>${esc(r.title||g.field_or_property||g.record_id)}</h4>
             <div class="review-meta">${esc(r.year||'')} · ${esc(r.journal_book||'')} · ${esc(r.verification_status||'')}</div>
           </div>
-          <span class="review-decision ${signedOff?'signed':'pending'}">${signedOff?'EDITOR SIGNED':'PENDING'}</span>
+          <span class="review-decision ${signedOff?'signed':g.decision==='READY_FOR_EDITOR_SIGNOFF'?'ready':'pending'}">${signedOff?'EDITOR SIGNED':esc(g.decision||'PENDING')}</span>
         </div>
 
         <div class="review-grid">
@@ -187,7 +201,8 @@ async function loadReviewQueue(){
 
         <div class="review-actions">
           ${sourceUrl?`<a class="btn secondary compact source-btn" href="${esc(sourceUrl)}" target="_blank" rel="noopener">Open source ↗</a>`:''}
-          ${!signedOff && state.role==='ADMIN' ? `<button class="btn primary compact signoff-btn" data-verification="${esc(g.verification_id)}">Editor sign-off</button>` : ''}
+          ${!signedOff && state.role==='ADMIN' && g.decision==='READY_FOR_EDITOR_SIGNOFF' ? `<button class="btn primary compact signoff-btn" data-verification="${esc(g.verification_id)}">Editor sign-off</button>` : ''}
+          ${!signedOff && g.decision!=='READY_FOR_EDITOR_SIGNOFF' ? `<span class="gate-quarantine">${esc(g.decision||'PENDING')}</span>` : ''}
         </div>
       </article>`;
     }).join('') || '<div class="muted">Belum ada verification gate.</div>';
@@ -410,6 +425,19 @@ $$('.review-tab').forEach(b=>b.addEventListener('click',()=>{
   $(`#review-${b.dataset.reviewTab}`).classList.add('active');
 }));
 $('#reviewRefreshBtn')?.addEventListener('click',loadReviewQueue);
+
+$('#markCandidateBtn')?.addEventListener('click',async()=>{
+  if(state.role!=='ADMIN') return;
+  const ready=(state.review?.gates||[]).filter(g=>g.decision==='READY_FOR_EDITOR_SIGNOFF').length;
+  if(ready>0){alert(`${ready} verification gate masih membutuhkan Editor sign-off.`);return;}
+  const ok=confirm('Tandai NF-0002 Sisal sebagai PUBLISHABLE CANDIDATE?\n\nIni TIDAK mempublikasikan Sisal. is_public tetap false dan publikasi tetap keputusan ADMIN terpisah.');
+  if(!ok)return;
+  const {error}=await sb.from('fibers').update({publication_status:'candidate',record_status:'REVIEWED'}).eq('fiber_id','NF-0002');
+  if(error){alert(error.message);return;}
+  await refreshDashboard();
+  await loadReviewQueue();
+});
+
 
 $('#auditRefreshBtn').addEventListener('click',loadAudit);
 

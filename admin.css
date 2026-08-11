@@ -76,3 +76,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--green2);box-shadow:0 
 .status.reviewedcandidate{background:#e6f3ec;color:#176044}.status.methodfilterrequired{background:#fff0d8;color:#8b5b0b}
 @media(max-width:1050px){.review-summary{grid-template-columns:repeat(3,1fr)}.review-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.review-hero{flex-direction:column}.review-summary{grid-template-columns:repeat(2,1fr)}.review-grid{grid-template-columns:1fr}.review-item-head{flex-direction:column}}
+
+
+/* ===== NatFiber Admin v0.6 candidate gate ===== */
+.review-decision.ready{background:#e4f3ea;color:#176044}
+.gate-quarantine{font-size:9px;font-weight:800;letter-spacing:.03em;padding:6px 8px;border-radius:999px;background:#f4eee2;color:#806237;display:inline-flex;align-items:center}
+.candidate-readiness{font-size:12px;line-height:1.6;margin-bottom:15px;background:#f8fbf9}
+.candidate-readiness strong{color:#123f31}
+#markCandidateBtn:disabled{opacity:.45;cursor:not-allowed}
+.review-hero-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
