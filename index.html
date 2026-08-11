@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#173f33" />
   <title>NatFiber Encyclopedia</title>
-  <meta name="description" content="Engineering natural fiber database and scientific encyclopedia." />
+  <meta name="description" content="Basis data ilmiah dan rekayasa serat alam." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,wght@1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=0.9" />
 </head>
 <body>
   <header class="topbar">
@@ -17,21 +17,21 @@
       <div class="brand-mark" aria-hidden="true">NF</div>
       <div>
         <div class="brand">NatFiber Encyclopedia</div>
-        <div class="brand-sub">Engineering Natural Fiber Database</div>
+        <div class="brand-sub" data-i18n="brand.subtitle">Basis Data Rekayasa Serat Alam</div>
       </div>
     </div>
-    <div class="top-status"><span class="dot"></span> Live Supabase scientific prototype</div>
+    <div class="topbar-actions"><div class="top-status"><span class="dot"></span> <span data-i18n="top.status">Prototipe ilmiah Supabase aktif</span></div><div class="language-switch" aria-label="Language"><button type="button" data-lang="id">🇮🇩 ID</button><button type="button" data-lang="en">🇬🇧 EN</button></div></div>
   </header>
 
   <main>
     <section class="hero">
-      <div class="eyebrow">SOURCE-TRACEABLE MATERIAL DATA</div>
-      <h1>Natural fibers, explored as <span>engineering materials.</span></h1>
-      <p>Search verified ranges, individual observations, treatment protocols, composite systems, evidence strength, and literature without reducing variable natural-fiber data to a single misleading number.</p>
+      <div class="eyebrow" data-i18n="hero.eyebrow">DATA MATERIAL DENGAN SUMBER TERLACAK</div>
+      <h1 data-i18n="hero.title" data-i18n-html="1">Serat alam, ditelaah sebagai <span>material rekayasa.</span></h1>
+      <p data-i18n="hero.desc">Telusuri rentang terverifikasi, observasi individual, protokol perlakuan, sistem komposit, tingkat bukti, dan literatur tanpa mereduksi data serat alam yang bervariasi menjadi satu angka yang menyesatkan.</p>
       <form id="searchForm" class="searchbox" role="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.3-4.3m2.3-5.2a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"/></svg>
-        <input id="searchInput" autocomplete="off" placeholder="Search Ijuk, Arenga pinnata, NaOH, tensile strength, polyester..." />
-        <button type="submit">Search</button>
+        <input id="searchInput" autocomplete="off" data-i18n-placeholder="search.placeholder" placeholder="Cari Ijuk, Arenga pinnata, NaOH, kekuatan tarik, poliester..." />
+        <button type="submit" data-i18n="search.button">Cari</button>
       </form>
       <div id="searchResults" class="search-results" hidden></div>
     </section>
@@ -39,35 +39,35 @@
     <section class="directory-section">
       <div class="section-title directory-head">
         <div>
-          <span>25-FIBER ROADMAP</span>
-          <h3>Explore the NatFiber directory</h3>
+          <span data-i18n="directory.eyebrow">PETA JALAN 25 SERAT</span>
+          <h3 data-i18n="directory.title">Jelajahi direktori NatFiber</h3>
         </div>
-        <p>Published fibers open their full scientific profile. Research and queued fibers are visible as roadmap entries without exposing draft data.</p>
+        <p data-i18n="directory.desc">Serat yang telah dipublikasikan dapat dibuka sebagai profil ilmiah lengkap. Serat yang masih diteliti atau antre tetap terlihat sebagai peta jalan tanpa membuka data draft.</p>
       </div>
 
       <div class="directory-stats" id="directoryStats"></div>
 
       <div class="directory-toolbar">
-        <input id="directoryFilter" class="directory-filter" placeholder="Filter fibers by name, scientific name, category..." />
+        <input id="directoryFilter" class="directory-filter" data-i18n-placeholder="directory.filter" placeholder="Saring berdasarkan nama serat, nama ilmiah, kategori..." />
         <div class="directory-legend">
-          <span><i class="legend-dot available"></i> Available</span>
-          <span><i class="legend-dot research"></i> Research</span>
-          <span><i class="legend-dot queued"></i> Coming soon</span>
+          <span><i class="legend-dot available"></i> <span data-i18n="status.available">Tersedia</span></span>
+          <span><i class="legend-dot research"></i> <span data-i18n="status.research">Sedang diteliti</span></span>
+          <span><i class="legend-dot queued"></i> <span data-i18n="status.queued">Akan datang</span></span>
         </div>
       </div>
 
       <div id="fiberDirectory" class="fiber-directory">
-        <div class="state-card">Loading fiber directory…</div>
+        <div class="state-card" data-i18n="directory.loading">Memuat direktori serat…</div>
       </div>
     </section>
 
-    <section id="loading" class="state-card">Loading NF-0001 from Supabase…</section>
+    <section id="loading" class="state-card" data-i18n="loading.profile">Memuat profil dari Supabase…</section>
     <section id="error" class="state-card error" hidden></section>
 
     <section id="fiberProfile" hidden>
       <div class="profile-head card">
         <div>
-          <div class="idline"><span id="fiberId">NF-0001</span><span class="verified">PUBLISHED</span></div>
+          <div class="idline"><span id="fiberId">NF-0001</span><span class="verified" id="publishBadge" data-i18n="published">DIPUBLIKASIKAN</span></div>
           <h2 id="fiberName">Ijuk</h2>
           <p class="scientific" id="scientificName">Arenga pinnata</p>
           <p id="fiberDescription" class="lead"></p>
@@ -79,90 +79,91 @@
       <div id="datasetSummary" class="dataset-summary"></div>
 
       <nav class="tabs" aria-label="Fiber sections">
-        <button class="tab active" data-tab="overview">Overview</button>
-        <button class="tab" data-tab="properties">Properties</button>
-        <button class="tab" data-tab="chemistry">Chemistry</button>
-        <button class="tab" data-tab="morphology">Morphology</button>
-        <button class="tab" data-tab="observations">Observations</button>
-        <button class="tab" data-tab="treatments">Treatments</button>
-        <button class="tab" data-tab="composites">Composites</button>
-        <button class="tab" data-tab="processing">Processing</button>
-        <button class="tab" data-tab="applications">Applications</button>
-        <button class="tab" data-tab="evidence">Evidence</button>
-        <button class="tab" data-tab="gaps">Research Gaps</button>
-        <button class="tab" data-tab="literature">Literature</button>
+        <button class="tab active" data-tab="overview"><span data-i18n="tab.overview">Overview</span></button>
+        <button class="tab" data-tab="properties"><span data-i18n="tab.properties">Properties</span></button>
+        <button class="tab" data-tab="chemistry"><span data-i18n="tab.chemistry">Chemistry</span></button>
+        <button class="tab" data-tab="morphology"><span data-i18n="tab.morphology">Morphology</span></button>
+        <button class="tab" data-tab="observations"><span data-i18n="tab.observations">Observations</span></button>
+        <button class="tab" data-tab="treatments"><span data-i18n="tab.treatments">Treatments</span></button>
+        <button class="tab" data-tab="composites"><span data-i18n="tab.composites">Composites</span></button>
+        <button class="tab" data-tab="processing"><span data-i18n="tab.processing">Processing</span></button>
+        <button class="tab" data-tab="applications"><span data-i18n="tab.applications">Applications</span></button>
+        <button class="tab" data-tab="evidence"><span data-i18n="tab.evidence">Evidence</span></button>
+        <button class="tab" data-tab="gaps"><span data-i18n="tab.gaps">Research Gaps</span></button>
+        <button class="tab" data-tab="literature"><span data-i18n="tab.literature">Literature</span></button>
       </nav>
 
       <section class="tabpanel active" id="tab-overview">
-        <div class="section-title"><div><span>CANONICAL DISPLAY</span><h3>Current verified engineering ranges</h3></div><p>Ranges remain linked to their original sources and conditions.</p></div>
+        <div class="section-title"><div><span data-i18n="overview.eyebrow">CANONICAL DISPLAY</span><h3 data-i18n="overview.title">Current verified engineering ranges</h3></div><p data-i18n="overview.desc">Ranges remain linked to their original sources and conditions.</p></div>
         <div id="canonicalGrid" class="metric-grid"></div>
-        <div class="notice"><strong>How to read NatFiber:</strong> a range is not a universal constant. Natural-fiber properties vary with provenance, extraction, conditioning, geometry, test method, and treatment.</div>
+        <div class="notice"><strong data-i18n="overview.noticeTitle">Cara membaca NatFiber:</strong> <span data-i18n="overview.notice">rentang bukan konstanta universal. Sifat serat alam berubah menurut asal bahan, ekstraksi, pengondisian, geometri, metode uji, dan perlakuan.</span></div>
       </section>
 
       <section class="tabpanel" id="tab-properties">
-        <div class="section-title"><div><span>SCIENTIFIC VIEW</span><h3>Canonical properties</h3></div><p>Confidence and method warnings are shown beside each value.</p></div>
+        <div class="section-title"><div><span data-i18n="properties.eyebrow">SCIENTIFIC VIEW</span><h3 data-i18n="properties.title">Canonical properties</h3></div><p data-i18n="properties.desc">Confidence and method warnings are shown beside each value.</p></div>
         <div id="propertyTable" class="table-wrap"></div>
       </section>
 
       <section class="tabpanel" id="tab-chemistry">
-        <div class="section-title"><div><span>CHEMICAL COMPOSITION</span><h3>Source-resolved composition data</h3></div><p>Individual observations are preserved rather than collapsed into one “true” composition.</p></div>
+        <div class="section-title"><div><span data-i18n="chemistry.eyebrow">CHEMICAL COMPOSITION</span><h3 data-i18n="chemistry.title">Source-resolved composition data</h3></div><p data-i18n="chemistry.desc">Individual observations are preserved rather than collapsed into one “true” composition.</p></div>
         <div id="chemistryTable" class="table-wrap"></div>
       </section>
 
       <section class="tabpanel" id="tab-morphology">
-        <div class="section-title"><div><span>FIBER MORPHOLOGY</span><h3>Geometry and structure observations</h3></div><p>Measurement method and source location remain visible.</p></div>
+        <div class="section-title"><div><span data-i18n="morphology.eyebrow">FIBER MORPHOLOGY</span><h3 data-i18n="morphology.title">Geometry and structure observations</h3></div><p data-i18n="morphology.desc">Measurement method and source location remain visible.</p></div>
         <div id="morphologyTable" class="table-wrap"></div>
       </section>
 
       <section class="tabpanel" id="tab-observations">
-        <div class="section-title"><div><span>RAW VERIFIED OBSERVATIONS</span><h3>Individual engineering data records</h3></div><p>These rows are the scientific evidence behind canonical display ranges.</p></div>
+        <div class="section-title"><div><span data-i18n="observations.eyebrow">RAW VERIFIED OBSERVATIONS</span><h3 data-i18n="observations.title">Individual engineering data records</h3></div><p data-i18n="observations.desc">These rows are the scientific evidence behind canonical display ranges.</p></div>
         <div id="observationTable" class="table-wrap"></div>
       </section>
 
       <section class="tabpanel" id="tab-treatments">
-        <div class="section-title"><div><span>SURFACE ENGINEERING</span><h3>Treatment protocols</h3></div><p>Concentration, temperature, duration, washing, drying, and purpose where available.</p></div>
+        <div class="section-title"><div><span data-i18n="treatments.eyebrow">SURFACE ENGINEERING</span><h3 data-i18n="treatments.title">Treatment protocols</h3></div><p data-i18n="treatments.desc">Concentration, temperature, duration, washing, drying, and purpose where available.</p></div>
         <div id="treatmentGrid" class="record-grid"></div>
       </section>
 
       <section class="tabpanel" id="tab-composites">
-        <div class="section-title"><div><span>FIBER–MATRIX SYSTEMS</span><h3>Composite evidence</h3></div><p>Matrix, fiber loading, treatment, processing, performance summary, and application context.</p></div>
+        <div class="section-title"><div><span data-i18n="composites.eyebrow">FIBER–MATRIX SYSTEMS</span><h3 data-i18n="composites.title">Composite evidence</h3></div><p data-i18n="composites.desc">Matrix, fiber loading, treatment, processing, performance summary, and application context.</p></div>
         <div id="compositeGrid" class="record-grid"></div>
       </section>
 
       <section class="tabpanel" id="tab-processing">
-        <div class="section-title"><div><span>MANUFACTURING ROUTES</span><h3>Processing methods reported in the literature</h3></div><p>Processing route is retained because matrix, fiber form, loading, and manufacturing method affect final composite behavior.</p></div>
+        <div class="section-title"><div><span data-i18n="processing.eyebrow">MANUFACTURING ROUTES</span><h3 data-i18n="processing.title">Processing methods reported in the literature</h3></div><p data-i18n="processing.desc">Processing route is retained because matrix, fiber form, loading, and manufacturing method affect final composite behavior.</p></div>
         <div id="processingGrid" class="record-grid"></div>
       </section>
 
       <section class="tabpanel" id="tab-applications">
-        <div class="section-title"><div><span>ENGINEERING USE</span><h3>Applications and maturity</h3></div><p>Commercial, demonstrated, experimental, and proposed applications are kept distinct.</p></div>
+        <div class="section-title"><div><span data-i18n="applications.eyebrow">ENGINEERING USE</span><h3 data-i18n="applications.title">Applications and maturity</h3></div><p data-i18n="applications.desc">Commercial, demonstrated, experimental, and proposed applications are kept distinct.</p></div>
         <div id="applicationGrid" class="record-grid"></div>
       </section>
 
       <section class="tabpanel" id="tab-evidence">
-        <div class="section-title"><div><span>EVIDENCE MAP</span><h3>How complete is the knowledge?</h3></div><p>Coverage measures database completeness—not how “good” the fiber is.</p></div>
+        <div class="section-title"><div><span data-i18n="evidence.eyebrow">EVIDENCE MAP</span><h3 data-i18n="evidence.title">How complete is the knowledge?</h3></div><p data-i18n="evidence.desc">Coverage measures database completeness—not how “good” the fiber is.</p></div>
         <div id="evidenceGrid" class="evidence-grid"></div>
         <div id="conflictBox" class="conflict-box"></div>
       </section>
 
       <section class="tabpanel" id="tab-gaps">
-        <div class="section-title"><div><span>OPEN QUESTIONS</span><h3>Research gaps</h3></div><p>Gaps identify where evidence is incomplete, heterogeneous, or needs method harmonization.</p></div>
+        <div class="section-title"><div><span data-i18n="gaps.eyebrow">OPEN QUESTIONS</span><h3 data-i18n="gaps.title">Research gaps</h3></div><p data-i18n="gaps.desc">Gaps identify where evidence is incomplete, heterogeneous, or needs method harmonization.</p></div>
         <div id="researchGapGrid" class="record-grid"></div>
       </section>
 
       <section class="tabpanel" id="tab-literature">
-        <div class="section-title"><div><span>AUDIT TRAIL</span><h3>Public literature records</h3></div><p>Each source remains identifiable by DOI or publisher URL.</p></div>
+        <div class="section-title"><div><span data-i18n="literature.eyebrow">AUDIT TRAIL</span><h3 data-i18n="literature.title">Public literature records</h3></div><p data-i18n="literature.desc">Each source remains identifiable by DOI or publisher URL.</p></div>
         <div id="referenceList" class="reference-list"></div>
       </section>
     </section>
   </main>
 
   <footer>
-    <div><strong>NatFiber Encyclopedia</strong> · Prototype v0.8</div>
-    <div>Scientific ranges · individual observations · source traceability · transparent evidence</div>
+    <div data-i18n="footer.left">NatFiber Encyclopedia · Prototipe v0.9</div>
+    <div data-i18n="footer.right">Rentang ilmiah · observasi individual · keterlacakan sumber · bukti transparan</div>
   </footer>
 
+  <script src="i18n.js?v=0.9"></script>
   <script src="config.js"></script>
-  <script src="app.js?v=0.8"></script>
+  <script src="app.js?v=0.9"></script>
 </body>
 </html>

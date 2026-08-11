@@ -5,6 +5,8 @@ const sb = createClient(supabaseUrl, publishableKey);
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
+const I18N = window.NF_I18N;
+const t = I18N.t, term = I18N.term, prose = I18N.prose;
 const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null, review:null, releasePreview:null };
 
 const clean = obj => Object.fromEntries(Object.entries(obj).filter(([,v]) => v !== '' && v !== null && v !== undefined));
@@ -86,14 +88,14 @@ async function refreshDashboard(){
 function renderDashboard(){
   const d=state.dashboard||{};
   const cards=[
-    ['Serat total',d.fibers_total||0],['Published',d.fibers_published||0],['Draft/private',d.fibers_draft||0],
-    ['References',d.references_total||0],['Properties',d.properties_total||0],['Treatments',d.treatments_total||0],
-    ['Composites',d.composites_total||0],['Open conflicts',d.open_conflicts||0],['Role',d.role||'—']
+    [t('admin.totalFibers'),d.fibers_total||0],[t('admin.published'),d.fibers_published||0],[t('admin.draftPrivate'),d.fibers_draft||0],
+    [t('admin.references'),d.references_total||0],[t('admin.properties'),d.properties_total||0],[t('admin.treatments'),d.treatments_total||0],
+    [t('admin.composites'),d.composites_total||0],[t('admin.openConflicts'),d.open_conflicts||0],[t('admin.role'),d.role||'—']
   ];
   $('#summaryCards').innerHTML=cards.map(([k,v])=>`<div class="summary-card"><b>${v}</b><span>${k}</span></div>`).join('');
-  $('#dashboardFiberList').innerHTML=(state.fibers||[]).slice(0,10).map(f=>`<div class="mini-item"><span><b>${f.fiber_id} · ${f.canonical_name}</b><br><span class="muted">${f.scientific_name||''}</span></span><span class="status ${statusClass(f.publication_status)}">${f.is_public?'PUBLIC':'PRIVATE'} · ${f.publication_status}</span></div>`).join('');
+  $('#dashboardFiberList').innerHTML=(state.fibers||[]).slice(0,10).map(f=>`<div class="mini-item"><span><b>${f.fiber_id} · ${f.canonical_name}</b><br><span class="muted">${f.scientific_name||''}</span></span><span class="status ${statusClass(f.publication_status)}">${f.is_public?t('admin.public'):t('admin.private')} · ${term(f.publication_status)}</span></div>`).join('');
   const audit=d.recent_audit||[];
-  $('#dashboardAudit').innerHTML=audit.length?audit.slice(0,10).map(a=>`<div class="mini-item"><span><b>${a.action} · ${a.table_name}</b><br><span class="muted">${a.record_id||'—'} · ${new Date(a.occurred_at).toLocaleString()}</span></span></div>`).join(''):'<div class="muted">Belum ada perubahan melalui panel editor.</div>';
+  $('#dashboardAudit').innerHTML=audit.length?audit.slice(0,10).map(a=>`<div class="mini-item"><span><b>${a.action} · ${a.table_name}</b><br><span class="muted">${a.record_id||'—'} · ${new Date(a.occurred_at).toLocaleString()}</span></span></div>`).join(''):`<div class="muted">${t('admin.noChanges')}</div>`;
 }
 
 function renderFiberList(filter=''){
@@ -101,7 +103,7 @@ function renderFiberList(filter=''){
   const rows=state.fibers.filter(f=>!q || [f.fiber_id,f.canonical_name,f.english_name,f.scientific_name].some(x=>String(x||'').toLowerCase().includes(q)));
   $('#fiberList').innerHTML=rows.map(f=>`<button class="fiber-row ${state.selectedFiber?.fiber_id===f.fiber_id?'active':''}" data-id="${f.fiber_id}">
     <span><b>${f.fiber_id} · ${f.canonical_name}</b><span>${f.scientific_name||'scientific name pending'}</span></span>
-    <span class="status ${statusClass(f.publication_status)}">${f.is_public?'PUBLIC':'PRIVATE'}</span>
+    <span class="status ${statusClass(f.publication_status)}">${f.is_public?t('admin.public'):t('admin.private')}</span>
   </button>`).join('');
   $$('.fiber-row').forEach(b=>b.addEventListener('click',()=>selectFiber(b.dataset.id)));
 }
@@ -125,7 +127,7 @@ async function selectFiber(id){
   ['record_status','publication_status','is_public'].forEach(n=>$('#fiberForm').elements[n].disabled=!admin);
   const pub=$('#publishBtn');
   pub.hidden=!admin;
-  pub.textContent=f.is_public?'Unpublish':'Publish';
+  pub.textContent=f.is_public?t('admin.unpublish'):t('admin.publish');
   pub.className=`btn compact ${f.is_public?'danger':'publish'}`;
   $('#entryFiberTitle').textContent=`${f.fiber_id} · ${f.canonical_name}`;
   $('#entryFiberSub').textContent=f.scientific_name||'';
@@ -137,7 +139,7 @@ function switchView(view){
   $$('.view').forEach(v=>v.classList.remove('active'));
   $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
   $(`#view-${view}`).classList.add('active');
-  $('#viewTitle').textContent={dashboard:'Dashboard',fibers:'Kelola Serat',entry:'Input Data',review:'Review Queue',preview:'Release Preview',audit:'Audit Log'}[view]||view;
+  $('#viewTitle').textContent={dashboard:t('admin.dashboard'),fibers:t('admin.manageFibers'),entry:t('admin.input'),review:t('admin.reviewQueue'),preview:t('admin.releasePreview'),audit:t('admin.auditLog')}[view]||view;
   if(view==='review') loadReviewQueue();
   if(view==='preview') loadReleasePreview();
   if(view==='audit') loadAudit();
@@ -164,11 +166,11 @@ async function loadReviewQueue(){
     const quarantined=state.review.gates.filter(g=>g.decision!=='READY_FOR_EDITOR_SIGNOFF' && g.decision!=='EDITOR_SIGNED_OFF').length;
     const reviewedCanon=state.review.canon.filter(c=>c.status==='REVIEWED_CANDIDATE').length;
     $('#reviewSummary').innerHTML=[
-      ['Verification gates',state.review.gates.length],
-      ['Editor signed',signed],
-      ['Ready to sign',ready],
-      ['Quarantined/pending',quarantined],
-      ['Canonical candidates',reviewedCanon]
+      [t('admin.verificationGates'),state.review.gates.length],
+      [t('admin.editorSigned'),signed],
+      [t('admin.readySign'),ready],
+      [t('admin.quarantined'),quarantined],
+      [t('admin.canonicalCandidates'),reviewedCanon]
     ].map(([k,v])=>`<div class="summary-card"><b>${v}</b><span>${k}</span></div>`).join('');
 
     const candidateBtn=$('#markCandidateBtn');
@@ -176,7 +178,7 @@ async function loadReviewQueue(){
     const alreadyCandidate=currentFiber?.publication_status==='candidate';
     const candidateEligible=state.role==='ADMIN' && ready===0 && signed>0 && !alreadyCandidate;
     candidateBtn.disabled=!candidateEligible;
-    candidateBtn.textContent=alreadyCandidate?'Candidate ✓':'Mark Publishable Candidate';
+    candidateBtn.textContent=alreadyCandidate?t('admin.candidate'):t('admin.markCandidate');
     $('#candidateReadiness').innerHTML = alreadyCandidate
       ? '<strong>NF-0002 is a PUBLISHABLE CANDIDATE.</strong> It remains PRIVATE until a separate ADMIN publish decision.'
       : ready>0
@@ -210,8 +212,8 @@ async function loadReviewQueue(){
         <p class="review-note">${esc(g.decision_note||'')}</p>
 
         <div class="review-actions">
-          ${sourceUrl?`<a class="btn secondary compact source-btn" href="${esc(sourceUrl)}" target="_blank" rel="noopener">Open source ↗</a>`:''}
-          ${!signedOff && state.role==='ADMIN' && g.decision==='READY_FOR_EDITOR_SIGNOFF' ? `<button class="btn primary compact signoff-btn" data-verification="${esc(g.verification_id)}">Editor sign-off</button>` : ''}
+          ${sourceUrl?`<a class="btn secondary compact source-btn" href="${esc(sourceUrl)}" target="_blank" rel="noopener">${t('admin.openSource')}</a>`:''}
+          ${!signedOff && state.role==='ADMIN' && g.decision==='READY_FOR_EDITOR_SIGNOFF' ? `<button class="btn primary compact signoff-btn" data-verification="${esc(g.verification_id)}">${t('admin.editorSignoff')}</button>` : ''}
           ${!signedOff && g.decision!=='READY_FOR_EDITOR_SIGNOFF' ? `<span class="gate-quarantine">${esc(g.decision||'PENDING')}</span>` : ''}
         </div>
       </article>`;
@@ -426,11 +428,11 @@ async function loadReleasePreview(){
     items.forEach(i=>sectionCounts[i.section_key]=(sectionCounts[i.section_key]||0)+1);
 
     $('#releaseSummary').innerHTML=[
-      ['Selected release items',s.selected_items||0],
-      ['Approved items',s.approved_items||0],
-      ['On hold',s.hold_items||0],
-      ['Sections',Object.keys(sectionCounts).length],
-      ['Fiber status',f.publication_status||'—']
+      [t('admin.releaseSelected'),s.selected_items||0],
+      [t('admin.releaseApproved'),s.approved_items||0],
+      [t('admin.onHold'),s.hold_items||0],
+      [t('admin.sections'),Object.keys(sectionCounts).length],
+      [t('admin.fiberStatus'),term(f.publication_status||'—')]
     ].map(([k,v])=>`<div class="summary-card"><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('');
 
     const allApproved=(s.selected_items||0)>0 && Number(s.approved_items||0)===Number(s.selected_items||0);
@@ -438,10 +440,11 @@ async function loadReleasePreview(){
     const isPublished=f.publication_status==='published' && f.is_public;
     const approveBtn=$('#approveReleaseBtn');
     const publishBtn=$('#finalPublishBtn');
+    approveBtn.textContent=t('admin.approveRelease');
     approveBtn.disabled=!(state.role==='ADMIN' && isCandidate && !allApproved);
     publishBtn.disabled=!(state.role==='ADMIN' && isCandidate && allApproved);
     if(isPublished){ approveBtn.disabled=true; publishBtn.disabled=true; publishBtn.textContent='Published ✓'; }
-    else publishBtn.textContent='Final Publish';
+    else publishBtn.textContent=t('admin.finalPublish');
 
     $('#releaseStatusNote').innerHTML=isPublished
       ? '<strong>NF-0002 sudah PUBLISHED.</strong> Release Manifest menjadi jejak kurasi untuk record yang dibuka.'
@@ -498,7 +501,19 @@ $('#authForm').addEventListener('submit',async e=>{
   const email=$('#authEmail').value.trim(), password=$('#authPassword').value;
   const {error}=await sb.auth.signInWithPassword({email,password});
   if(error) return msg('#authMessage',error.message,'error');
-  authenticate();
+  
+I18N.onChange(() => {
+  I18N.apply();
+  if(state.dashboard){ renderDashboard(); renderFiberList($('#fiberSearch')?.value||''); }
+  const active=document.querySelector('.view.active')?.id;
+  if(active==='view-review') loadReviewQueue();
+  if(active==='view-preview') loadReleasePreview();
+  if(active==='view-audit') loadAudit();
+  const currentView = active?.replace('view-','') || 'dashboard';
+  $('#viewTitle').textContent={dashboard:t('admin.dashboard'),fibers:t('admin.manageFibers'),entry:t('admin.input'),review:t('admin.reviewQueue'),preview:t('admin.releasePreview'),audit:t('admin.auditLog')}[currentView]||currentView;
+});
+
+authenticate();
 });
 $('#signupBtn').addEventListener('click',async()=>{
   const email=$('#authEmail').value.trim(), password=$('#authPassword').value;

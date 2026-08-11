@@ -117,3 +117,12 @@ input:focus,select:focus,textarea:focus{border-color:var(--green2);box-shadow:0 
 #approveReleaseBtn:disabled,#finalPublishBtn:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:1100px){.release-summary{grid-template-columns:repeat(3,1fr)}.release-section-body{grid-template-columns:1fr}}
 @media(max-width:700px){.release-hero{flex-direction:column}.release-summary{grid-template-columns:repeat(2,1fr)}.release-actions{justify-content:flex-start}}
+
+
+/* ===== NatFiber Editor v0.9 bilingual ===== */
+.language-switch{display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid #d8e5df;border-radius:999px;background:#f7faf8}
+.language-switch button{border:0;background:transparent;border-radius:999px;padding:7px 9px;font:inherit;font-size:10px;font-weight:800;color:#62756c;cursor:pointer}
+.language-switch button.active{background:#173f33;color:#fff}
+.auth-lang{position:fixed;top:18px;right:18px;z-index:10}
+.top-actions{flex-wrap:wrap}
+@media(max-width:720px){.auth-lang{top:10px;right:10px}.top-actions .language-switch{order:-1}}

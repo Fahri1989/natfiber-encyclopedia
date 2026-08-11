@@ -1,0 +1,381 @@
+
+(() => {
+  const STORAGE_KEY = 'natfiber_lang';
+  const listeners = new Set();
+
+  const dict = {
+    id: {
+      'brand.subtitle':'Basis Data Rekayasa Serat Alam',
+      'top.status':'Prototipe ilmiah Supabase aktif',
+      'hero.eyebrow':'DATA MATERIAL DENGAN SUMBER TERLACAK',
+      'hero.title':'Serat alam, ditelaah sebagai <span>material rekayasa.</span>',
+      'hero.desc':'Telusuri rentang terverifikasi, observasi individual, protokol perlakuan, sistem komposit, tingkat bukti, dan literatur tanpa mereduksi data serat alam yang bervariasi menjadi satu angka yang menyesatkan.',
+      'search.placeholder':'Cari Ijuk, Arenga pinnata, NaOH, kekuatan tarik, poliester...',
+      'search.button':'Cari',
+      'directory.eyebrow':'PETA JALAN 25 SERAT',
+      'directory.title':'Jelajahi direktori NatFiber',
+      'directory.desc':'Serat yang telah dipublikasikan dapat dibuka sebagai profil ilmiah lengkap. Serat yang masih diteliti atau antre tetap terlihat sebagai peta jalan tanpa membuka data draft.',
+      'directory.filter':'Saring berdasarkan nama serat, nama ilmiah, kategori...',
+      'status.available':'Tersedia',
+      'status.research':'Sedang diteliti',
+      'status.queued':'Akan datang',
+      'directory.open':'Buka profil ilmiah →',
+      'directory.researchAction':'Pemetaan bukti sedang berlangsung',
+      'directory.queuedAction':'Menunggu telaah bukti',
+      'directory.noMatch':'Tidak ada serat yang sesuai dengan filter.',
+      'directory.loading':'Memuat direktori serat…',
+      'directory.roadmapFibers':'Serat dalam roadmap',
+      'directory.available':'Tersedia',
+      'directory.inResearch':'Dalam riset',
+      'directory.queued':'Antrean',
+      'loading.profile':'Memuat profil dari Supabase…',
+      'published':'DIPUBLIKASIKAN',
+      'identity.family':'Famili',
+      'identity.order':'Ordo',
+      'identity.plantPart':'Bagian tanaman',
+      'identity.originCategory':'Kategori asal serat',
+      'identity.region':'Wilayah',
+      'identity.useStatus':'Status pemanfaatan',
+      'tab.overview':'Ringkasan',
+      'tab.properties':'Properti',
+      'tab.chemistry':'Kimia',
+      'tab.morphology':'Morfologi',
+      'tab.observations':'Observasi',
+      'tab.treatments':'Perlakuan',
+      'tab.composites':'Komposit',
+      'tab.processing':'Proses',
+      'tab.applications':'Aplikasi',
+      'tab.evidence':'Bukti',
+      'tab.gaps':'Kesenjangan Riset',
+      'tab.literature':'Literatur',
+      'overview.eyebrow':'TAMPILAN KANONIK',
+      'overview.title':'Rentang rekayasa terverifikasi saat ini',
+      'overview.desc':'Setiap rentang tetap terhubung dengan sumber dan kondisi asalnya.',
+      'overview.noticeTitle':'Cara membaca NatFiber:',
+      'overview.notice':'rentang bukan konstanta universal. Sifat serat alam berubah menurut asal bahan, ekstraksi, pengondisian, geometri, metode uji, dan perlakuan.',
+      'properties.eyebrow':'TAMPILAN ILMIAH',
+      'properties.title':'Properti kanonik',
+      'properties.desc':'Tingkat bukti dan peringatan metode ditampilkan bersama setiap nilai.',
+      'chemistry.eyebrow':'KOMPOSISI KIMIA',
+      'chemistry.title':'Data komposisi berbasis sumber',
+      'chemistry.desc':'Observasi individual dipertahankan dan tidak dipaksakan menjadi satu komposisi “benar”.',
+      'morphology.eyebrow':'MORFOLOGI SERAT',
+      'morphology.title':'Observasi geometri dan struktur',
+      'morphology.desc':'Metode pengukuran dan sumber tetap terlihat.',
+      'observations.eyebrow':'OBSERVASI TERVERIFIKASI',
+      'observations.title':'Data rekayasa individual',
+      'observations.desc':'Baris-baris ini merupakan bukti ilmiah di balik tampilan kanonik.',
+      'treatments.eyebrow':'REKAYASA PERMUKAAN',
+      'treatments.title':'Protokol perlakuan',
+      'treatments.desc':'Konsentrasi, temperatur, durasi, pencucian, pengeringan, dan tujuan ditampilkan jika tersedia.',
+      'composites.eyebrow':'SISTEM SERAT–MATRIKS',
+      'composites.title':'Bukti sistem komposit',
+      'composites.desc':'Matriks, kadar serat, perlakuan, proses, ringkasan performa, dan konteks aplikasi.',
+      'processing.eyebrow':'RUTE MANUFAKTUR',
+      'processing.title':'Metode proses yang dilaporkan dalam literatur',
+      'processing.desc':'Rute proses dipertahankan karena matriks, bentuk serat, kadar, dan metode manufaktur memengaruhi perilaku komposit.',
+      'applications.eyebrow':'PEMANFAATAN REKAYASA',
+      'applications.title':'Aplikasi dan tingkat kematangan',
+      'applications.desc':'Aplikasi komersial, terdemonstrasi, eksperimental, dan potensial dibedakan.',
+      'evidence.eyebrow':'PETA BUKTI',
+      'evidence.title':'Seberapa lengkap pengetahuannya?',
+      'evidence.desc':'Cakupan mengukur kelengkapan basis data—bukan menilai apakah serat “baik” atau “buruk”.',
+      'gaps.eyebrow':'PERTANYAAN TERBUKA',
+      'gaps.title':'Kesenjangan penelitian',
+      'gaps.desc':'Kesenjangan menunjukkan bagian bukti yang masih terbatas, heterogen, atau memerlukan harmonisasi metode.',
+      'literature.eyebrow':'JEJAK AUDIT',
+      'literature.title':'Rekaman literatur publik',
+      'literature.desc':'Setiap sumber tetap dapat ditelusuri melalui DOI atau URL penerbit.',
+      'summary.canonical':'Nilai kanonik',
+      'summary.chemical':'Data kimia',
+      'summary.morphology':'Data morfologi',
+      'summary.properties':'Observasi properti',
+      'summary.treatments':'Perlakuan',
+      'summary.composites':'Sistem komposit',
+      'summary.processing':'Rute proses',
+      'summary.applications':'Aplikasi',
+      'summary.evidence':'Domain bukti',
+      'summary.gaps':'Kesenjangan riset',
+      'summary.references':'Referensi publik',
+      'table.property':'Properti',
+      'table.verifiedRange':'Rentang terverifikasi',
+      'table.evidence':'Bukti',
+      'table.publicWording':'Uraian publik',
+      'table.methodWarning':'Peringatan metode/kondisi',
+      'table.component':'Komponen',
+      'table.value':'Nilai',
+      'table.unit':'Satuan',
+      'table.method':'Metode',
+      'table.sampleCondition':'Kondisi sampel',
+      'table.source':'Sumber',
+      'table.parameter':'Parameter',
+      'table.valueRange':'Nilai/rentang',
+      'table.sourceLocation':'Lokasi sumber',
+      'table.reference':'Referensi',
+      'table.category':'Kategori',
+      'table.sd':'SD',
+      'table.n':'n',
+      'table.standardMethod':'Standar/metode',
+      'table.condition':'Kondisi',
+      'table.treatment':'Perlakuan',
+      'label.concentration':'Konsentrasi',
+      'label.temperature':'Temperatur',
+      'label.duration':'Durasi',
+      'label.solvent':'Pelarut',
+      'label.washing':'Pencucian',
+      'label.drying':'Pengeringan',
+      'label.fiberForm':'Bentuk serat',
+      'label.fiberContent':'Kadar serat',
+      'label.orientation':'Orientasi',
+      'label.fabrication':'Fabrikasi',
+      'label.application':'Aplikasi',
+      'label.equipment':'Peralatan',
+      'label.pressure':'Tekanan',
+      'label.reference':'Referensi',
+      'label.sector':'Sektor',
+      'label.whyMatters':'Mengapa penting:',
+      'label.recommendedStudy':'Studi yang disarankan:',
+      'label.coverage':'cakupan',
+      'label.gap':'Kesenjangan:',
+      'label.transparency':'TRANSPARANSI',
+      'label.conflictTitle':'Konflik sumber dan keputusan editorial',
+      'label.decision':'Keputusan:',
+      'label.openSource':'Buka sumber ↗',
+      'empty.treatment':'Belum ada data perlakuan publik.',
+      'empty.composite':'Belum ada data komposit publik.',
+      'empty.processing':'Belum ada data proses publik.',
+      'empty.application':'Belum ada data aplikasi publik.',
+      'empty.gaps':'Belum ada data kesenjangan riset publik.',
+      'search.searching':'Mencari…',
+      'search.noMatch':'Belum ada hasil publik.',
+      'search.error':'Kesalahan pencarian:',
+      'profile.notFound':'Profil serat yang dipublikasikan tidak ditemukan.',
+      'research.toast':'Deep Research dan verifikasi sumber masih berlangsung. Data teknis draft tetap privat sampai kriteria publikasi terpenuhi.',
+      'footer.left':'NatFiber Encyclopedia · Prototipe v0.9',
+      'footer.right':'Rentang ilmiah · observasi individual · keterlacakan sumber · bukti transparan',
+      'language.id':'Indonesia',
+      'language.en':'English',
+
+      'admin.panel':'Panel editorial NatFiber Encyclopedia',
+      'admin.restricted':'Akses terbatas.',
+      'admin.allowlist':'Akun harus terdaftar dalam daftar editor NatFiber.',
+      'admin.email':'Email',
+      'admin.password':'Kata sandi',
+      'admin.login':'Masuk',
+      'admin.signup':'Buat akun editor pertama kali',
+      'admin.backPublic':'← Kembali ke ensiklopedia publik',
+      'admin.dashboard':'Dasbor',
+      'admin.fibers':'Serat',
+      'admin.input':'Input Data',
+      'admin.review':'Antrean Review',
+      'admin.preview':'Pratinjau Rilis',
+      'admin.audit':'Log Audit',
+      'admin.openPublic':'Buka Situs Publik ↗',
+      'admin.logout':'Keluar',
+      'admin.workspace':'RUANG KERJA EDITORIAL NATFIBER',
+      'admin.authenticated':'● Terautentikasi',
+      'admin.refresh':'Muat Ulang',
+      'admin.manage':'Kelola →',
+      'admin.recent':'AKTIVITAS TERBARU',
+      'admin.editorialPipeline':'ALUR EDITORIAL',
+      'admin.fiberList':'Daftar Serat',
+      'admin.editorRule':'Aturan editorial:',
+      'admin.editorRuleText':'data dapat diisi sebagai DRAFT/REVIEWED oleh editor, tetapi publikasi ke situs publik hanya dapat dilakukan oleh role ADMIN. Semua perubahan penting dicatat di log audit.',
+      'admin.totalFibers':'Serat total',
+      'admin.published':'Dipublikasikan',
+      'admin.draftPrivate':'Draft/privat',
+      'admin.references':'Referensi',
+      'admin.properties':'Properti',
+      'admin.treatments':'Perlakuan',
+      'admin.composites':'Komposit',
+      'admin.openConflicts':'Konflik terbuka',
+      'admin.role':'Peran',
+      'admin.public':'PUBLIK',
+      'admin.private':'PRIVAT',
+      'admin.publish':'Publikasikan',
+      'admin.unpublish':'Tarik Publikasi',
+      'admin.manageFibers':'Kelola Serat',
+      'admin.reviewQueue':'Antrean Review',
+      'admin.releasePreview':'Pratinjau Rilis',
+      'admin.auditLog':'Log Audit',
+      'admin.verificationGates':'Gerbang verifikasi',
+      'admin.editorSigned':'Ditandatangani editor',
+      'admin.readySign':'Siap ditandatangani',
+      'admin.quarantined':'Dikarantina/tertunda',
+      'admin.canonicalCandidates':'Kandidat kanonik',
+      'admin.openSource':'Buka sumber ↗',
+      'admin.editorSignoff':'Tanda tangan editor',
+      'admin.candidate':'Kandidat ✓',
+      'admin.markCandidate':'Tandai Kandidat Publikasi',
+      'admin.releaseSelected':'Item rilis terpilih',
+      'admin.releaseApproved':'Item disetujui',
+      'admin.onHold':'Ditahan',
+      'admin.sections':'Bagian',
+      'admin.fiberStatus':'Status serat',
+      'admin.approveRelease':'Setujui Set Rilis',
+      'admin.finalPublish':'Publikasi Final',
+      'admin.previewPrivate':'HANYA PRATINJAU — PRIVAT.',
+      'admin.releaseApprovedNote':'SET RILIS DISETUJUI.',
+      'admin.noChanges':'Belum ada perubahan melalui panel editor.'
+    },
+    en: {
+      'brand.subtitle':'Engineering Natural Fiber Database',
+      'top.status':'Live Supabase scientific prototype',
+      'hero.eyebrow':'SOURCE-TRACEABLE MATERIAL DATA',
+      'hero.title':'Natural fibers, explored as <span>engineering materials.</span>',
+      'hero.desc':'Search verified ranges, individual observations, treatment protocols, composite systems, evidence strength, and literature without reducing variable natural-fiber data to a single misleading number.',
+      'search.placeholder':'Search Ijuk, Arenga pinnata, NaOH, tensile strength, polyester...',
+      'search.button':'Search',
+      'directory.eyebrow':'25-FIBER ROADMAP',
+      'directory.title':'Explore the NatFiber directory',
+      'directory.desc':'Published fibers open their full scientific profile. Research and queued fibers are visible as roadmap entries without exposing draft data.',
+      'directory.filter':'Filter fibers by name, scientific name, category...',
+      'status.available':'Available','status.research':'Research in progress','status.queued':'Coming soon',
+      'directory.open':'Open scientific profile →','directory.researchAction':'Evidence mapping underway','directory.queuedAction':'Queued for evidence review',
+      'directory.noMatch':'No fibers match this filter.','directory.loading':'Loading fiber directory…',
+      'directory.roadmapFibers':'Roadmap fibers','directory.available':'Available','directory.inResearch':'In research','directory.queued':'Queued',
+      'loading.profile':'Loading profile from Supabase…','published':'PUBLISHED',
+      'identity.family':'Family','identity.order':'Order','identity.plantPart':'Plant part','identity.originCategory':'Origin category','identity.region':'Region','identity.useStatus':'Use status',
+      'tab.overview':'Overview','tab.properties':'Properties','tab.chemistry':'Chemistry','tab.morphology':'Morphology','tab.observations':'Observations','tab.treatments':'Treatments','tab.composites':'Composites','tab.processing':'Processing','tab.applications':'Applications','tab.evidence':'Evidence','tab.gaps':'Research Gaps','tab.literature':'Literature',
+      'overview.eyebrow':'CANONICAL DISPLAY','overview.title':'Current verified engineering ranges','overview.desc':'Ranges remain linked to their original sources and conditions.','overview.noticeTitle':'How to read NatFiber:','overview.notice':'a range is not a universal constant. Natural-fiber properties vary with provenance, extraction, conditioning, geometry, test method, and treatment.',
+      'properties.eyebrow':'SCIENTIFIC VIEW','properties.title':'Canonical properties','properties.desc':'Confidence and method warnings are shown beside each value.',
+      'chemistry.eyebrow':'CHEMICAL COMPOSITION','chemistry.title':'Source-resolved composition data','chemistry.desc':'Individual observations are preserved rather than collapsed into one “true” composition.',
+      'morphology.eyebrow':'FIBER MORPHOLOGY','morphology.title':'Geometry and structure observations','morphology.desc':'Measurement method and source location remain visible.',
+      'observations.eyebrow':'RAW VERIFIED OBSERVATIONS','observations.title':'Individual engineering data records','observations.desc':'These rows are the scientific evidence behind canonical display ranges.',
+      'treatments.eyebrow':'SURFACE ENGINEERING','treatments.title':'Treatment protocols','treatments.desc':'Concentration, temperature, duration, washing, drying, and purpose where available.',
+      'composites.eyebrow':'FIBER–MATRIX SYSTEMS','composites.title':'Composite evidence','composites.desc':'Matrix, fiber loading, treatment, processing, performance summary, and application context.',
+      'processing.eyebrow':'MANUFACTURING ROUTES','processing.title':'Processing methods reported in the literature','processing.desc':'Processing route is retained because matrix, fiber form, loading, and manufacturing method affect final composite behavior.',
+      'applications.eyebrow':'ENGINEERING USE','applications.title':'Applications and maturity','applications.desc':'Commercial, demonstrated, experimental, and proposed applications are kept distinct.',
+      'evidence.eyebrow':'EVIDENCE MAP','evidence.title':'How complete is the knowledge?','evidence.desc':'Coverage measures database completeness—not how “good” the fiber is.',
+      'gaps.eyebrow':'OPEN QUESTIONS','gaps.title':'Research gaps','gaps.desc':'Gaps identify where evidence is incomplete, heterogeneous, or needs method harmonization.',
+      'literature.eyebrow':'AUDIT TRAIL','literature.title':'Public literature records','literature.desc':'Each source remains identifiable by DOI or publisher URL.',
+      'summary.canonical':'Canonical values','summary.chemical':'Chemical records','summary.morphology':'Morphology records','summary.properties':'Property observations','summary.treatments':'Treatments','summary.composites':'Composite systems','summary.processing':'Processing routes','summary.applications':'Applications','summary.evidence':'Evidence domains','summary.gaps':'Research gaps','summary.references':'Public references',
+      'table.property':'Property','table.verifiedRange':'Verified range','table.evidence':'Evidence','table.publicWording':'Public wording','table.methodWarning':'Method / condition warning','table.component':'Component','table.value':'Value','table.unit':'Unit','table.method':'Method','table.sampleCondition':'Sample condition','table.source':'Source','table.parameter':'Parameter','table.valueRange':'Value / range','table.sourceLocation':'Source location','table.reference':'Reference','table.category':'Category','table.sd':'SD','table.n':'n','table.standardMethod':'Standard / method','table.condition':'Condition','table.treatment':'Treatment',
+      'label.concentration':'Concentration','label.temperature':'Temperature','label.duration':'Duration','label.solvent':'Solvent','label.washing':'Washing','label.drying':'Drying','label.fiberForm':'Fiber form','label.fiberContent':'Fiber content','label.orientation':'Orientation','label.fabrication':'Fabrication','label.application':'Application','label.equipment':'Equipment','label.pressure':'Pressure','label.reference':'Reference','label.sector':'Sector','label.whyMatters':'Why it matters:','label.recommendedStudy':'Recommended study:','label.coverage':'coverage','label.gap':'Gap:','label.transparency':'TRANSPARENCY','label.conflictTitle':'Source conflicts and editorial decisions','label.decision':'Decision:','label.openSource':'Open source ↗',
+      'empty.treatment':'No public treatment records yet.','empty.composite':'No public composite records yet.','empty.processing':'No public processing records yet.','empty.application':'No public application records yet.','empty.gaps':'No public research-gap records yet.',
+      'search.searching':'Searching…','search.noMatch':'No public matches yet.','search.error':'Search error:','profile.notFound':'Published fiber profile not found.','research.toast':'Deep Research and source verification are in progress. Draft technical data remain private until publication criteria are met.',
+      'footer.left':'NatFiber Encyclopedia · Prototype v0.9','footer.right':'Scientific ranges · individual observations · source traceability · transparent evidence',
+      'language.id':'Indonesia','language.en':'English',
+      'admin.panel':'NatFiber Encyclopedia editorial panel','admin.restricted':'Restricted access.','admin.allowlist':'The account must be registered in the NatFiber editor allowlist.','admin.email':'Email','admin.password':'Password','admin.login':'Sign in','admin.signup':'Create first editor account','admin.backPublic':'← Back to public encyclopedia',
+      'admin.dashboard':'Dashboard','admin.fibers':'Fibers','admin.input':'Data Entry','admin.review':'Review Queue','admin.preview':'Release Preview','admin.audit':'Audit Log','admin.openPublic':'Open Public Site ↗','admin.logout':'Sign out','admin.workspace':'NATFIBER EDITORIAL WORKSPACE','admin.authenticated':'● Authenticated','admin.refresh':'Refresh',
+      'admin.manage':'Manage →','admin.recent':'RECENT ACTIVITY','admin.editorialPipeline':'EDITORIAL PIPELINE','admin.fiberList':'Fiber List','admin.editorRule':'Editorial rule:','admin.editorRuleText':'editors may enter DRAFT/REVIEWED data, but only ADMIN can publish to the public site. Important changes are recorded in the audit log.',
+      'admin.totalFibers':'Total fibers','admin.published':'Published','admin.draftPrivate':'Draft/private','admin.references':'References','admin.properties':'Properties','admin.treatments':'Treatments','admin.composites':'Composites','admin.openConflicts':'Open conflicts','admin.role':'Role','admin.public':'PUBLIC','admin.private':'PRIVATE','admin.publish':'Publish','admin.unpublish':'Unpublish','admin.manageFibers':'Manage Fibers','admin.reviewQueue':'Review Queue','admin.releasePreview':'Release Preview','admin.auditLog':'Audit Log',
+      'admin.verificationGates':'Verification gates','admin.editorSigned':'Editor signed','admin.readySign':'Ready to sign','admin.quarantined':'Quarantined/pending','admin.canonicalCandidates':'Canonical candidates','admin.openSource':'Open source ↗','admin.editorSignoff':'Editor sign-off','admin.candidate':'Candidate ✓','admin.markCandidate':'Mark Publishable Candidate',
+      'admin.releaseSelected':'Selected release items','admin.releaseApproved':'Approved items','admin.onHold':'On hold','admin.sections':'Sections','admin.fiberStatus':'Fiber status','admin.approveRelease':'Approve Release Set','admin.finalPublish':'Final Publish','admin.previewPrivate':'PREVIEW ONLY — PRIVATE.','admin.releaseApprovedNote':'RELEASE SET APPROVED.','admin.noChanges':'No changes through the editor panel yet.'
+    }
+  };
+
+  const exactTerms = {
+    id: {
+      'Canonical':'Kanonik','English':'Inggris','Botanical synonym':'Sinonim botani',
+      'Leaf':'Daun','Leaf fiber':'Serat daun','Commercial hard fiber':'Serat keras komersial',
+      'High':'Tinggi','HIGH':'TINGGI','Moderate':'Sedang','MODERATE':'SEDANG','Limited':'Terbatas','LIMITED':'TERBATAS','Mixed':'Campuran','MIXED':'CAMPURAN',
+      'Physical':'Fisik','Mechanical':'Mekanik','Thermal':'Termal','Interface':'Antarmuka',
+      'Density':'Densitas','Fiber diameter':'Diameter serat','Fiber length':'Panjang serat',
+      'Tensile strength':'Kekuatan tarik','Tensile modulus':'Modulus tarik','Elongation at break':'Regangan putus',
+      'Water absorption':'Penyerapan air','Moisture content':'Kadar air','Linear density':'Densitas linier',
+      'Mass loss':'Kehilangan massa','Char yield':'Rendemen arang','DTG peak temperature':'Temperatur puncak DTG',
+      'Initial active-degradation boundary':'Batas awal degradasi aktif','Interfacial shear strength':'Kekuatan geser antarmuka',
+      'Tensile strength change':'Perubahan kekuatan tarik',
+      'Cellulose':'Selulosa','Hemicellulose':'Hemiselulosa','Lignin':'Lignin','Ash':'Abu','Extractives':'Ekstraktif',
+      'Thermoplastic':'Termoplastik','Thermoset':'Termoset','Cementitious':'Sementisius','Bio-based thermoset':'Termoset berbasis hayati',
+      'Processing':'Proses','Application':'Aplikasi','Experimental':'Eksperimental','EXPERIMENTAL':'EKSPERIMENTAL',
+      'DEMONSTRATED_COMMERCIAL':'KOMERSIAL TERDEMONSTRASI','OPEN':'TERBUKA','MONITOR':'DIPANTAU',
+      'Published':'Dipublikasikan','published':'dipublikasikan','candidate':'kandidat','draft':'draft','archived':'diarsipkan'
+    }
+  };
+
+  const descriptions = {
+    id: {
+      'NF-0001':'Ijuk (*Arenga pinnata*) merupakan serat alam lignoselulosa dari pohon aren yang memiliki potensi sebagai penguat material komposit. NatFiber mempertahankan setiap hasil berdasarkan sumber, kondisi serat, perlakuan, dan metode uji agar variasi sifat tidak disederhanakan menjadi satu angka universal.',
+      'NF-0002':'Sisal (*Agave sisalana* Perrine) merupakan serat daun/serat keras lignoselulosa yang dimanfaatkan secara komersial. Bukti inti disajikan berdasarkan sumber dan metode. Nilai sifat tarik serta komposisi kimia tidak diperlakukan sebagai nilai universal karena asal bahan, posisi pada daun, retting, metode penentuan luas penampang, panjang ukur, dan preparasi analitik dapat memengaruhi hasil.'
+    }
+  };
+
+  const canonicalId = {
+    id: {
+      'CAN-000008':'Densitas tampak 1,15 ± 0,06 g/cm³ untuk material Bahia 2026 yang terverifikasi, diukur dengan ASTM D3800-22 menggunakan displacement cairan minyak kanola. Nilai ini bersifat spesifik sumber dan tidak digabungkan dengan dataset densitas yang memakai metode berbeda.',
+      'CAN-000011':'Seri Brasil Martin 2009 berdasarkan posisi serat menunjukkan selulosa 77,3–84,4 wt.% dari daerah basal hingga apikal. Ini adalah rentang posisi dalam satu studi, bukan rentang selulosa universal untuk spesies Sisal.',
+      'CAN-000012':'Studi TGA primer pada Sisal tanpa perlakuan menempatkan indikator degradasi/stabilitas substansial kira-kira pada wilayah 230–250 °C dalam nitrogen dengan laju pemanasan 10 °C/menit. Nilai ini bukan temperatur proses aman yang universal.',
+      'CAN-000013':'Martin 2009 melaporkan kekuatan tarik rata-rata 448, 671, 565, dan 369 MPa pada empat daerah serat/daun berturut-turut sepanjang 30 cm. Keempat posisi harus dipertahankan sebagai observasi terpisah.',
+      'CAN-000014':'Sisal mentah: 556,2 MPa menurut ASTM D3822-07, panjang ukur 100 mm, n=5, pembebanan 15 N/menit, dengan luas penampang dari SEM. Ini merupakan jangkar metode yang spesifik sumber.',
+      'CAN-000015':'Subset Kassegn 2024 dengan area hasil perhitungan dan DIC: 679 ± 118 MPa untuk water-retted dan 718 ± 106 MPa untuk unretted, ASTM C1557-03, panjang ukur 66 mm.',
+      'CAN-000016':'Observasi spesifik sumber tahun 2026: 413,7 MPa pada kondisi NaOH 5 wt.% selama 2 jam dalam studi antarmuka/UPR. Nilai ini bukan kondisi optimum universal untuk Sisal.',
+      'CAN-000017':'Dua observasi independen penyerapan air 24 jam pada serat tanpa perlakuan adalah 90,96 ± 1,37% dan 93,05%. Keduanya diperlakukan sebagai subset dengan kualifikasi metode, bukan spesifikasi universal.',
+      'CAN-000018':'Dalam satu studi, kekuatan tarik rata-rata tetap sekitar 385–400 MPa pada panjang ukur 10–40 mm; regangan menurun ketika panjang ukur bertambah dan modulus memerlukan koreksi compliance.',
+      'CAN-000019':'Belaadi 2014 melaporkan kekuatan tarik rata-rata sekitar 415 MPa untuk Sisal komersial Aljazair as-received, n=40, ASTM D3822-07, panjang ukur 20 mm.',
+      'CAN-000020':'Untuk populasi serat retted/unretted yang sama pada studi 2024, penggunaan diameter berbasis mikroskopi menghasilkan kekuatan tarik kira-kira 512–547 MPa.',
+      'CAN-000021':'Nilai tarik spesifik sumber 512 MPa untuk Sisal Endayesus, Ethiopia yang mengalami soil retting; ASTM D3822-07, panjang uji 25 mm, n=50, 5 mm/menit.',
+      'CAN-000022':'Dalam satu metodologi ASTM D3822-07 dengan panjang ukur 100 mm, respons NaOH tidak monoton: hasil tertinggi 607,7 MPa pada 2% selama 48 jam, sedangkan 10% selama 48 jam turun menjadi 324,1 MPa.'
+    }
+  };
+
+  let lang = localStorage.getItem(STORAGE_KEY) || 'id';
+  if (!dict[lang]) lang = 'id';
+
+  function t(key, vars={}) {
+    let out = (dict[lang] && dict[lang][key]) ?? dict.en[key] ?? key;
+    Object.entries(vars).forEach(([k,v]) => out = out.replaceAll(`{${k}}`, String(v)));
+    return out;
+  }
+  function term(v) {
+    if (v == null) return '';
+    const s = String(v);
+    return (exactTerms[lang] && exactTerms[lang][s]) || s;
+  }
+  function prose(v) {
+    if (v == null || lang === 'en') return v || '';
+    let s = String(v);
+    const reps = [
+      ['source-specific','spesifik sumber'],['Source-specific','Spesifik sumber'],
+      ['method-specific','spesifik metode'],['Method-specific','Spesifik metode'],
+      ['within-study','dalam satu studi'],['Within-study','Dalam satu studi'],
+      ['untreated','tanpa perlakuan'],['Untreated','Tanpa perlakuan'],
+      ['water-retted','water-retted'],['unretted','unretted'],
+      ['gauge length','panjang ukur'],['Gauge length','Panjang ukur'],
+      ['cross-sectional area','luas penampang'],['Cross-sectional area','Luas penampang'],
+      ['fiber position','posisi serat'],['Fiber position','Posisi serat'],
+      ['Do not merge','Jangan digabungkan'],['do not merge','jangan digabungkan'],
+      ['Do not average','Jangan dirata-ratakan'],['do not average','jangan dirata-ratakan'],
+      ['not a universal','bukan nilai universal'],['not universal','tidak universal'],
+      ['Research gap','Kesenjangan riset'],['Evidence','Bukti']
+    ];
+    reps.forEach(([a,b]) => s = s.replaceAll(a,b));
+    return s;
+  }
+  function fiberDescription(id, fallback='') {
+    return (descriptions[lang] && descriptions[lang][id]) || fallback || '';
+  }
+  function canonicalWording(r) {
+    if (lang === 'id' && canonicalId.id[r?.canonical_value_id]) return canonicalId.id[r.canonical_value_id];
+    return r?.recommended_public_wording || '';
+  }
+  function nameType(v){ return term(v); }
+  function getLang(){ return lang; }
+
+  function apply(root=document) {
+    document.documentElement.lang = lang;
+    root.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      if (el.dataset.i18nHtml === '1') el.innerHTML = t(key);
+      else el.textContent = t(key);
+    });
+    root.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t(el.dataset.i18nPlaceholder));
+    root.querySelectorAll('[data-lang]').forEach(btn => btn.classList.toggle('active', btn.dataset.lang === lang));
+  }
+  function setLang(next) {
+    if (!dict[next] || next === lang) return;
+    lang = next;
+    localStorage.setItem(STORAGE_KEY, lang);
+    apply();
+    listeners.forEach(fn => { try { fn(lang); } catch(e) { console.error(e); } });
+  }
+  function onChange(fn){ listeners.add(fn); return () => listeners.delete(fn); }
+  function bind(root=document){
+    root.querySelectorAll('[data-lang]').forEach(btn => btn.addEventListener('click', () => setLang(btn.dataset.lang)));
+    apply(root);
+  }
+
+  window.NF_I18N = { t, term, prose, fiberDescription, canonicalWording, nameType, getLang, setLang, apply, bind, onChange };
+  document.addEventListener('DOMContentLoaded', () => bind());
+})();

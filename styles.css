@@ -78,3 +78,15 @@ footer{border-top:1px solid var(--line);padding:28px max(24px,calc((100% - 1180p
 .gap-card .record-summary{line-height:1.65}
 #tab-processing .record,#tab-applications .record,#tab-gaps .record{min-height:150px}
 @media(max-width:900px){.tabs{overflow-x:auto;flex-wrap:nowrap}.tab{white-space:nowrap}}
+
+
+/* ===== NatFiber v0.9 bilingual ===== */
+.topbar-actions{display:flex;align-items:center;gap:14px}
+.language-switch{display:inline-flex;align-items:center;gap:3px;padding:3px;border:1px solid #d8e5df;border-radius:999px;background:#f7faf8}
+.language-switch button{border:0;background:transparent;border-radius:999px;padding:7px 9px;font:inherit;font-size:11px;font-weight:750;color:#63766d;cursor:pointer}
+.language-switch button.active{background:#173f33;color:#fff}
+@media(max-width:720px){
+  .topbar{align-items:flex-start}
+  .topbar-actions{align-items:flex-end;flex-direction:column;gap:8px}
+  .top-status{font-size:10px}
+}
