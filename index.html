@@ -36,6 +36,31 @@
       <div id="searchResults" class="search-results" hidden></div>
     </section>
 
+    <section class="directory-section">
+      <div class="section-title directory-head">
+        <div>
+          <span>25-FIBER ROADMAP</span>
+          <h3>Explore the NatFiber directory</h3>
+        </div>
+        <p>Published fibers open their full scientific profile. Research and queued fibers are visible as roadmap entries without exposing draft data.</p>
+      </div>
+
+      <div class="directory-stats" id="directoryStats"></div>
+
+      <div class="directory-toolbar">
+        <input id="directoryFilter" class="directory-filter" placeholder="Filter fibers by name, scientific name, category..." />
+        <div class="directory-legend">
+          <span><i class="legend-dot available"></i> Available</span>
+          <span><i class="legend-dot research"></i> Research</span>
+          <span><i class="legend-dot queued"></i> Coming soon</span>
+        </div>
+      </div>
+
+      <div id="fiberDirectory" class="fiber-directory">
+        <div class="state-card">Loading fiber directory…</div>
+      </div>
+    </section>
+
     <section id="loading" class="state-card">Loading NF-0001 from Supabase…</section>
     <section id="error" class="state-card error" hidden></section>
 
@@ -115,7 +140,7 @@
   </main>
 
   <footer>
-    <div><strong>NatFiber Encyclopedia</strong> · Prototype v0.2</div>
+    <div><strong>NatFiber Encyclopedia</strong> · Prototype v0.4</div>
     <div>Scientific ranges · individual observations · source traceability · transparent evidence</div>
   </footer>
 

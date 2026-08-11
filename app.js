@@ -12,6 +12,7 @@ async function rpc(name, body) {
 }
 const rpcSearch = (term) => rpc('search_natfiber', { search_term: term });
 const rpcProfile = (fiberId) => rpc('get_natfiber_profile', { target_fiber_id: fiberId });
+const rpcDirectory = () => rpc('get_natfiber_directory', {});
 
 const esc = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const fmt = (n) => Number.isFinite(Number(n)) ? Number(n).toLocaleString(undefined,{maximumFractionDigits:4}) : '—';
@@ -92,6 +93,75 @@ function renderEvidence(rows, conflicts) {
 function renderReferences(rows) {
   $('#referenceList').innerHTML = rows.map(r=>`<article class="reference"><div class="reference-meta">${esc(r.reference_id)} · ${esc(r.year||'')} · ${esc(r.journal_book||'')}</div><h4>${esc(r.title)}</h4><p>${esc(r.authors||'')}</p>${r.url?`<a href="${esc(r.url)}" target="_blank" rel="noopener">Open source ↗</a>`:''}</article>`).join('');
 }
+
+let directoryRows = [];
+
+function statusLabel(status){
+  return status === 'AVAILABLE' ? 'Available'
+       : status === 'RESEARCH' ? 'Research in progress'
+       : 'Coming soon';
+}
+
+function renderDirectory(rows = directoryRows){
+  const q = ($('#directoryFilter')?.value || '').trim().toLowerCase();
+  const filtered = rows.filter(r => !q || [
+    r.fiber_id, r.canonical_name, r.english_name, r.scientific_name,
+    r.fiber_origin_category, r.plant_part
+  ].some(v => String(v || '').toLowerCase().includes(q)));
+
+  const box = $('#fiberDirectory');
+  box.innerHTML = filtered.map(r => {
+    const clickable = r.roadmap_status === 'AVAILABLE';
+    const cls = r.roadmap_status.toLowerCase();
+    return `<article class="directory-card ${cls} ${clickable ? 'clickable' : ''}" data-status="${esc(r.roadmap_status)}" ${clickable ? `data-directory-fiber="${esc(r.fiber_id)}"` : ''}>
+      <div class="directory-card-top">
+        <span class="directory-id">${esc(r.fiber_id)}</span>
+        <span class="directory-status ${cls}">${esc(statusLabel(r.roadmap_status))}</span>
+      </div>
+      <h4>${esc(r.canonical_name)}</h4>
+      <p class="directory-scientific">${esc(r.scientific_name || 'Taxonomy pending')}</p>
+      <div class="directory-meta">${esc(r.fiber_origin_category || 'Natural fiber')} · ${esc(r.plant_part || 'Plant part pending')}</div>
+      ${clickable ? '<div class="directory-action">Open scientific profile →</div>' :
+        r.roadmap_status === 'RESEARCH' ? '<div class="directory-action muted-action">Evidence mapping underway</div>' :
+        '<div class="directory-action muted-action">Queued for evidence review</div>'}
+    </article>`;
+  }).join('') || '<div class="state-card">No fibers match this filter.</div>';
+
+  box.querySelectorAll('[data-directory-fiber]').forEach(card => card.addEventListener('click', async () => {
+    await loadFiber(card.dataset.directoryFiber);
+    document.querySelector('#fiberProfile').scrollIntoView({behavior:'smooth'});
+  }));
+
+  box.querySelectorAll('.directory-card.research').forEach(card => card.addEventListener('click', () => {
+    const name = card.querySelector('h4')?.textContent || 'This fiber';
+    const sci = card.querySelector('.directory-scientific')?.textContent || '';
+    const notice = document.createElement('div');
+    notice.className = 'research-toast';
+    notice.innerHTML = `<strong>${esc(name)}</strong>${sci ? ` · <em>${esc(sci)}</em>` : ''}<br>Deep Research and source verification are in progress. Draft technical data remain private until publication criteria are met.`;
+    document.body.appendChild(notice);
+    setTimeout(() => notice.classList.add('show'), 20);
+    setTimeout(() => { notice.classList.remove('show'); setTimeout(() => notice.remove(), 250); }, 4200);
+  }));
+}
+
+async function loadDirectory(){
+  try{
+    directoryRows = await rpcDirectory();
+    const available = directoryRows.filter(r => r.roadmap_status === 'AVAILABLE').length;
+    const research = directoryRows.filter(r => r.roadmap_status === 'RESEARCH').length;
+    const queued = directoryRows.filter(r => r.roadmap_status === 'QUEUED').length;
+    $('#directoryStats').innerHTML = [
+      ['Roadmap fibers', directoryRows.length],
+      ['Available', available],
+      ['In research', research],
+      ['Queued', queued]
+    ].map(([k,v]) => `<div class="directory-stat"><strong>${esc(v)}</strong><span>${esc(k)}</span></div>`).join('');
+    renderDirectory();
+  }catch(err){
+    $('#fiberDirectory').innerHTML = `<div class="state-card error">Could not load directory: ${esc(err.message)}</div>`;
+  }
+}
+
 async function loadFiber(fiberId='NF-0001') {
   $('#loading').hidden=false; $('#error').hidden=true; $('#fiberProfile').hidden=true;
   try {
@@ -126,4 +196,6 @@ $('#searchForm').addEventListener('submit',async e=>{
 });
 
 document.addEventListener('click',e=>{if(!e.target.closest('.searchbox')&&!e.target.closest('.search-results')) $('#searchResults').hidden=true});
+$('#directoryFilter')?.addEventListener('input', () => renderDirectory());
+loadDirectory();
 loadFiber();

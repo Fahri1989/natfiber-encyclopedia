@@ -21,3 +21,54 @@ footer{border-top:1px solid var(--line);padding:28px max(24px,calc((100% - 1180p
 .dataset-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 4px}.summary-item{background:#edf5f1;border:1px solid var(--line);border-radius:14px;padding:13px 15px}.summary-item strong{display:block;font-size:20px;letter-spacing:-.03em}.summary-item span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}.muted{color:var(--muted);font-size:11px}.observations{min-width:1350px}
 @media(max-width:900px){.dataset-summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.dataset-summary{grid-template-columns:1fr 1fr}.summary-item strong{font-size:18px}}
+
+
+/* ===== NatFiber v0.4 public directory ===== */
+.directory-section{max-width:1600px;margin:0 auto;padding:10px 48px 50px}
+.directory-head{margin-bottom:20px}
+.directory-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 16px}
+.directory-stat{background:#fff;border:1px solid #dce8e2;border-radius:16px;padding:17px 19px}
+.directory-stat strong{display:block;font-size:25px;color:#12382d}
+.directory-stat span{display:block;margin-top:4px;font-size:11px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:#6b7c75}
+.directory-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:17px}
+.directory-filter{width:min(520px,100%);border:1px solid #ceddd6;border-radius:12px;padding:12px 14px;background:white;color:#17372e}
+.directory-legend{display:flex;gap:15px;align-items:center;color:#64756e;font-size:12px;white-space:nowrap}
+.directory-legend span{display:flex;gap:6px;align-items:center}
+.legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.legend-dot.available{background:#2f9c70}.legend-dot.research{background:#d49b32}.legend-dot.queued{background:#a8b5af}
+.fiber-directory{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.directory-card{background:#fff;border:1px solid #dce7e2;border-radius:18px;padding:17px;min-height:178px;transition:.18s ease;position:relative;overflow:hidden}
+.directory-card::after{content:"";position:absolute;inset:auto 0 0;height:4px;background:#d4ded9}
+.directory-card.available::after{background:#2f9c70}.directory-card.research::after{background:#d49b32}
+.directory-card.clickable{cursor:pointer}.directory-card.clickable:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(15,57,44,.10);border-color:#a9cdbd}
+.directory-card.research{cursor:pointer;background:#fffdf8}.directory-card.research:hover{border-color:#e7c77e}
+.directory-card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.directory-id{font-size:10px;font-weight:800;letter-spacing:.08em;color:#71827a}
+.directory-status{font-size:9px;font-weight:850;letter-spacing:.04em;text-transform:uppercase;padding:5px 7px;border-radius:999px}
+.directory-status.available{background:#dff4e8;color:#176140}
+.directory-status.research{background:#fff0d0;color:#8a5907}
+.directory-status.queued{background:#edf1ef;color:#6e7d76}
+.directory-card h4{font-size:18px;margin:14px 0 4px;color:#102b22}
+.directory-scientific{margin:0;color:#246047;font-family:"Source Serif 4",serif;font-style:italic;font-size:15px}
+.directory-meta{font-size:11px;color:#718079;line-height:1.45;margin-top:12px}
+.directory-action{margin-top:14px;font-size:11px;font-weight:750;color:#185e45}
+.muted-action{color:#89968f}
+.research-toast{position:fixed;right:24px;bottom:24px;max-width:440px;background:#173f33;color:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 18px 48px rgba(10,35,27,.28);font-size:13px;line-height:1.5;opacity:0;transform:translateY(16px);transition:.22s ease;z-index:100}
+.research-toast.show{opacity:1;transform:translateY(0)}
+.research-toast em{color:#cae4d9}
+
+@media(max-width:1180px){
+  .fiber-directory{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:850px){
+  .directory-section{padding:10px 20px 40px}
+  .directory-stats{grid-template-columns:repeat(2,1fr)}
+  .fiber-directory{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .directory-toolbar{align-items:stretch;flex-direction:column}
+  .directory-legend{white-space:normal;flex-wrap:wrap}
+}
+@media(max-width:540px){
+  .fiber-directory{grid-template-columns:1fr}
+  .directory-stats{grid-template-columns:1fr 1fr}
+  .research-toast{left:14px;right:14px;bottom:14px}
+}
