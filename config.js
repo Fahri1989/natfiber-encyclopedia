@@ -4,11 +4,10 @@ window.NATFIBER_CONFIG = {
   publishableKey: 'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
 };
 
-// NatFiber NF-0001 Stage 1A Admin extension.
-// Loaded only on the editorial admin page; public pages are unaffected.
+// Fiber-aware editorial workspace (Admin only).
 if (/\/admin\.html$/.test(window.location.pathname)) {
   const s = document.createElement('script');
   s.type = 'module';
-  s.src = 'ijuk-enrichment-admin.js?v=1.1a';
+  s.src = 'fiber-admin-switcher.js?v=1.2';
   document.head.appendChild(s);
 }
