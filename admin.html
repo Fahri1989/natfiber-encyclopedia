@@ -47,7 +47,7 @@
     <aside class="sidebar">
       <div class="side-brand">
         <div class="brand-mark small">NF</div>
-        <div><strong>NatFiber</strong><span>Editor v0.6.1</span></div>
+        <div><strong>NatFiber</strong><span>Editor v0.7</span></div>
       </div>
 
       <nav class="side-nav">
@@ -55,6 +55,7 @@
         <button class="nav-btn" data-view="fibers">Serat</button>
         <button class="nav-btn" data-view="entry">Input Data</button>
         <button class="nav-btn" data-view="review">Review Queue</button>
+        <button class="nav-btn" data-view="preview">Release Preview</button>
         <button class="nav-btn" data-view="audit">Audit Log</button>
         <a class="nav-link" href="./" target="_blank" rel="noopener">Buka Public Site ↗</a>
       </nav>
@@ -334,6 +335,40 @@
         </article>
       </section>
 
+
+      <section class="view" id="view-preview">
+        <article class="panel release-hero">
+          <div>
+            <span class="eyebrow">CURATED PUBLIC RELEASE</span>
+            <h3>NF-0002 Sisal — Public Release Preview</h3>
+            <p>
+              Preview ini menggunakan Release Manifest. Hanya record terpilih yang akan dibuka ketika Final Publish dilakukan.
+              Selama status masih Candidate, seluruh scientific record tetap PRIVATE.
+            </p>
+          </div>
+          <div class="release-actions">
+            <button id="approveReleaseBtn" class="btn primary compact" disabled>Approve Release Set</button>
+            <button id="finalPublishBtn" class="btn danger compact" disabled>Final Publish</button>
+            <button id="releaseRefreshBtn" class="btn secondary compact">Refresh</button>
+          </div>
+        </article>
+
+        <div id="releaseSummary" class="summary-grid release-summary"></div>
+        <article id="releaseStatusNote" class="panel release-status-note"></article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <span class="eyebrow">SCIENTIFIC PROFILE PREVIEW</span>
+              <h3>What the public profile will contain</h3>
+            </div>
+          </div>
+          <div id="releasePreviewBody" class="release-preview-body">
+            <div class="muted">Memuat curated release preview…</div>
+          </div>
+        </article>
+      </section>
+
       <section class="view" id="view-audit">
         <article class="panel">
           <div class="panel-head">
@@ -347,6 +382,6 @@
   </div>
 
   <script src="config.js"></script>
-  <script type="module" src="admin.js?v=0.6.1"></script>
+  <script type="module" src="admin.js?v=0.7"></script>
 </body>
 </html>

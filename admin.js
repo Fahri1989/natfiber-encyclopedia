@@ -5,7 +5,7 @@ const sb = createClient(supabaseUrl, publishableKey);
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null, review:null };
+const state = { dashboard:null, role:null, fibers:[], selectedFiber:null, user:null, review:null, releasePreview:null };
 
 const clean = obj => Object.fromEntries(Object.entries(obj).filter(([,v]) => v !== '' && v !== null && v !== undefined));
 const nullable = v => v === '' ? null : v;
@@ -137,8 +137,9 @@ function switchView(view){
   $$('.view').forEach(v=>v.classList.remove('active'));
   $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
   $(`#view-${view}`).classList.add('active');
-  $('#viewTitle').textContent={dashboard:'Dashboard',fibers:'Kelola Serat',entry:'Input Data',review:'Review Queue',audit:'Audit Log'}[view]||view;
+  $('#viewTitle').textContent={dashboard:'Dashboard',fibers:'Kelola Serat',entry:'Input Data',review:'Review Queue',preview:'Release Preview',audit:'Audit Log'}[view]||view;
   if(view==='review') loadReviewQueue();
+  if(view==='preview') loadReleasePreview();
   if(view==='audit') loadAudit();
 }
 
@@ -275,6 +276,188 @@ function renderConflictReview(){
       <div><b>Aggregation</b><span>${esc(c.canonical_aggregation||'—')}</span></div>
     </div>
   </article>`).join('');
+}
+
+
+
+const releaseSectionLabels = {
+  identity:'1. Identity & Taxonomy',
+  canonical:'2. Engineering Summary / Canonical Candidates',
+  chemistry:'3. Source-Resolved Chemical Composition',
+  morphology:'4. Morphology',
+  properties:'5. Method-Qualified Physical / Mechanical / Thermal Properties',
+  treatments:'6. Surface Treatments',
+  composites:'7. Composite Systems',
+  processing:'8. Processing Routes',
+  applications:'9. Engineering Applications',
+  conflicts:'10. Methodological Warnings & Conflicts',
+  evidence:'11. Evidence Assessment',
+  research_gaps:'12. Research Gaps',
+  references:'13. References'
+};
+
+function releaseValue(r){
+  if(!r) return '—';
+  if(r.value !== null && r.value !== undefined){
+    const sd=(r.value_sd!==null && r.value_sd!==undefined)?` ± ${fmt(r.value_sd)}`:'';
+    return `${fmt(r.value)}${sd}${r.unit?` ${esc(r.unit)}`:''}`;
+  }
+  if(r.min_value !== null && r.min_value !== undefined){
+    const same=Number(r.min_value)===Number(r.max_value);
+    return `${fmt(r.min_value)}${!same?`–${fmt(r.max_value)}`:''}${r.unit?` ${esc(r.unit)}`:''}`;
+  }
+  return '—';
+}
+
+function releaseItemHtml(item){
+  const r=item.record||{};
+  const table=item.data_table;
+  let title=item.public_label||item.record_id;
+  let value='';
+  let meta='';
+  let body='';
+
+  if(table==='fibers'){
+    title=`${r.fiber_id||''} · ${r.canonical_name||'Sisal'}`;
+    value=esc(r.scientific_name||'');
+    meta=`${esc(r.family||'')} · ${esc(r.plant_part||'')}`;
+    body=esc(r.description_short||'');
+  }else if(table==='taxonomy'){
+    title='Accepted taxonomy';
+    value=`${esc(r.genus||'')} ${esc(r.species||'')} ${esc(r.taxon_authority||'')}`;
+    meta=`${esc(r.kingdom||'')} · ${esc(r.order_name||'')} · ${esc(r.family||'')}`;
+  }else if(table==='canonical_values'){
+    title=esc(r.display_field||item.record_id);
+    value=releaseValue(r);
+    meta=`Evidence: ${esc(r.confidence||'—')} · Gate: ${esc(r.verification_gate||'—')}`;
+    body=`${esc(r.recommended_public_wording||'')}${r.method_condition_warning?`<div class="release-warning">${esc(r.method_condition_warning)}</div>`:''}`;
+  }else if(table==='chemical_composition'){
+    title=esc(r.component||item.record_id);
+    value=releaseValue(r);
+    meta=`${esc(r.sample_condition||'Source-specific sample')} · ${esc(r.reference_id||'')}`;
+    body=esc(r.evidence_note||'');
+  }else if(table==='morphology'){
+    title=esc(r.parameter||item.record_id);
+    value=releaseValue(r);
+    meta=`${esc(r.sample_condition||'')} · ${esc(r.test_method||'')}`;
+    body=esc(r.evidence_note||'');
+  }else if(table==='properties'){
+    title=`${esc(r.property_category||'Property')} · ${esc(r.property_name||item.record_id)}`;
+    value=releaseValue(r);
+    const gl=(r.gauge_length!==null && r.gauge_length!==undefined)?` · GL ${fmt(r.gauge_length)} mm`:'';
+    meta=`${esc(r.test_standard||r.test_method||'Method as reported')}${gl} · ${esc(r.reference_id||'')}`;
+    body=`${esc(r.sample_condition||'')}${r.evidence_note?`<div class="release-subnote">${esc(r.evidence_note)}</div>`:''}`;
+  }else if(table==='treatments'){
+    title=esc(r.agent_method||item.record_id);
+    const conc=(r.concentration_value!==null && r.concentration_value!==undefined)?`${fmt(r.concentration_value)} ${esc(r.concentration_unit||'')}`:'';
+    const time=(r.time_value!==null && r.time_value!==undefined)?`${fmt(r.time_value)} ${esc(r.time_unit||'')}`:'';
+    value=[conc,time].filter(Boolean).join(' · ')||'Recipe verified';
+    meta=esc(r.purpose||'Treatment condition');
+    body=[r.washing&&`Wash: ${r.washing}`,r.drying_condition&&`Drying: ${r.drying_condition}`,r.evidence_note].filter(Boolean).map(esc).join('<br>');
+  }else if(table==='composite_systems'){
+    title=`${esc(r.matrix_name||'Composite')} · ${esc(r.matrix_family||'')}`;
+    value=r.fiber_content_value!==null && r.fiber_content_value!==undefined?`${fmt(r.fiber_content_value)} ${esc(r.fiber_content_unit||'')}`:'Source-level system';
+    meta=`${esc(r.fabrication_method||'Process as reported')} · ${esc(r.reference_id||'')}`;
+    body=esc(r.property_summary||'');
+  }else if(table==='processing'){
+    title=esc(r.process_name||item.record_id);
+    value=esc(r.process_category||'Processing');
+    meta=esc(r.reference_id||'');
+    body=esc(r.notes||'');
+  }else if(table==='applications'){
+    title=esc(r.application_name||item.record_id);
+    value=esc(r.maturity_level||'');
+    meta=esc(r.application_sector||'');
+    body=esc(r.evidence_summary||'');
+  }else if(table==='conflicts'){
+    title=esc(r.affected_data||r.issue_type||item.record_id);
+    value=esc(r.canonical_aggregation||'METHOD WARNING');
+    meta=`Risk: ${esc(r.risk||'—')} · Status: ${esc(r.status||'—')}`;
+    body=`${esc(r.current_decision||r.issue_summary||'')}<div class="release-warning">${esc(r.required_action||'')}</div>`;
+  }else if(table==='evidence_map'){
+    title=esc(r.domain||item.record_id);
+    value=esc(r.evidence_level||'');
+    meta=`Coverage ${fmt(r.coverage_pct||0)}% · ${fmt(r.primary_sources||0)} primary source(s)`;
+    body=`${esc(r.main_strength||'')}<div class="release-subnote">Gap: ${esc(r.main_gap||'—')}</div>`;
+  }else if(table==='research_gaps'){
+    title=`Priority ${esc(r.priority||'—')} · ${esc(r.gap||item.record_id)}`;
+    value=esc(r.status||'OPEN');
+    meta=esc(r.application_relevance||'');
+    body=`${esc(r.why_it_matters||'')}<div class="release-subnote">${esc(r.recommended_study||'')}</div>`;
+  }else if(table==='references'){
+    title=esc(r.title||item.record_id);
+    value=esc(r.year||'');
+    meta=`${esc(r.journal_book||r.publisher||'')} · ${esc(r.verification_status||'')}`;
+    const doi=r.doi?`DOI: ${esc(r.doi)}`:'';
+    body=doi;
+  }
+
+  return `<div class="release-item ${table}">
+    <div class="release-item-top">
+      <div>
+        <div class="release-record-id">${esc(item.record_id)}</div>
+        <h4>${title}</h4>
+      </div>
+      <span class="release-state ${String(item.editor_status||'selected').toLowerCase()}">${esc(item.editor_status||'SELECTED')}</span>
+    </div>
+    ${value?`<div class="release-value">${value}</div>`:''}
+    ${meta?`<div class="release-meta">${meta}</div>`:''}
+    ${body?`<div class="release-body">${body}</div>`:''}
+    ${item.release_note?`<div class="release-warning">${esc(item.release_note)}</div>`:''}
+  </div>`;
+}
+
+async function loadReleasePreview(){
+  const body=$('#releasePreviewBody');
+  body.innerHTML='<div class="muted">Memuat curated release preview…</div>';
+  try{
+    const d=await rpc('get_natfiber_release_preview',{target_fiber_id:'NF-0002'});
+    if(!d) throw new Error('Release preview tidak tersedia untuk akun ini.');
+    state.releasePreview=d;
+    const items=d.items||[];
+    const s=d.summary||{};
+    const f=d.fiber||{};
+    const sectionCounts={};
+    items.forEach(i=>sectionCounts[i.section_key]=(sectionCounts[i.section_key]||0)+1);
+
+    $('#releaseSummary').innerHTML=[
+      ['Selected release items',s.selected_items||0],
+      ['Approved items',s.approved_items||0],
+      ['On hold',s.hold_items||0],
+      ['Sections',Object.keys(sectionCounts).length],
+      ['Fiber status',f.publication_status||'—']
+    ].map(([k,v])=>`<div class="summary-card"><b>${esc(v)}</b><span>${esc(k)}</span></div>`).join('');
+
+    const allApproved=(s.selected_items||0)>0 && Number(s.approved_items||0)===Number(s.selected_items||0);
+    const isCandidate=f.publication_status==='candidate' && !f.is_public;
+    const isPublished=f.publication_status==='published' && f.is_public;
+    const approveBtn=$('#approveReleaseBtn');
+    const publishBtn=$('#finalPublishBtn');
+    approveBtn.disabled=!(state.role==='ADMIN' && isCandidate && !allApproved);
+    publishBtn.disabled=!(state.role==='ADMIN' && isCandidate && allApproved);
+    if(isPublished){ approveBtn.disabled=true; publishBtn.disabled=true; publishBtn.textContent='Published ✓'; }
+    else publishBtn.textContent='Final Publish';
+
+    $('#releaseStatusNote').innerHTML=isPublished
+      ? '<strong>NF-0002 sudah PUBLISHED.</strong> Release Manifest menjadi jejak kurasi untuk record yang dibuka.'
+      : allApproved
+        ? '<strong>Release Set APPROVED.</strong> Semua item terpilih sudah lolos release-set approval. Final Publish akan membuka hanya item pada manifest ini secara atomik.'
+        : `<strong>PREVIEW ONLY — PRIVATE.</strong> ${fmt(s.selected_items||0)} curated item(s) dipilih. Tidak ada record scientific Sisal yang dibuka ke publik pada tahap preview ini.`;
+
+    const groups={};
+    items.forEach(i=>(groups[i.section_key]??=[]).push(i));
+    body.innerHTML=Object.entries(releaseSectionLabels).map(([key,label])=>{
+      const rows=groups[key]||[];
+      if(!rows.length) return '';
+      const open=['identity','canonical','conflicts'].includes(key)?' open':'';
+      return `<details class="release-section"${open}>
+        <summary><span>${esc(label)}</span><b>${rows.length}</b></summary>
+        <div class="release-section-body">${rows.map(releaseItemHtml).join('')}</div>
+      </details>`;
+    }).join('');
+  }catch(err){
+    body.innerHTML=`<div class="message error">${esc(err.message)}</div>`;
+  }
 }
 
 
@@ -434,6 +617,39 @@ $$('.review-tab').forEach(b=>b.addEventListener('click',()=>{
   $(`#review-${b.dataset.reviewTab}`).classList.add('active');
 }));
 $('#reviewRefreshBtn')?.addEventListener('click',loadReviewQueue);
+
+$('#releaseRefreshBtn')?.addEventListener('click',loadReleasePreview);
+
+$('#approveReleaseBtn')?.addEventListener('click',async()=>{
+  if(state.role!=='ADMIN') return;
+  const ok=confirm(
+    'Approve seluruh curated Release Set NF-0002 Sisal?\n\n' +
+    'Ini BELUM mempublikasikan Sisal. Approval hanya mengunci bahwa item-item di Release Manifest telah disetujui untuk final release check.'
+  );
+  if(!ok)return;
+  try{
+    await rpc('approve_natfiber_release',{target_fiber_id:'NF-0002'});
+    await loadReleasePreview();
+  }catch(err){alert(err.message)}
+});
+
+$('#finalPublishBtn')?.addEventListener('click',async()=>{
+  if(state.role!=='ADMIN') return;
+  const ok=confirm(
+    'FINAL PUBLISH NF-0002 SISAL?\n\n' +
+    'Tindakan ini akan membuka fiber dan HANYA record yang ada di Release Manifest kepada publik. ' +
+    'Record quarantined/pending tetap private.\n\nLanjutkan hanya setelah preview final sudah diperiksa.'
+  );
+  if(!ok)return;
+  try{
+    const result=await rpc('publish_natfiber_release',{target_fiber_id:'NF-0002'});
+    alert(`NF-0002 published. Curated release items: ${result.published_items}`);
+    await refreshDashboard();
+    await loadReleasePreview();
+  }catch(err){alert(err.message)}
+});
+
+
 
 $('#markCandidateBtn')?.addEventListener('click',async()=>{
   if(state.role!=='ADMIN') return;
