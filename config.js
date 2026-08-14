@@ -15,6 +15,11 @@ if (/\/admin\.html$/.test(window.location.pathname)) {
   globalIjuk.type = 'module';
   globalIjuk.src = 'ijuk-global-admin-v1.1.js?v=1.1';
   document.head.appendChild(globalIjuk);
+
+  const mediaIjuk = document.createElement('script');
+  mediaIjuk.type = 'module';
+  mediaIjuk.src = 'ijuk-media-admin-v1.0.js?v=1.0';
+  document.head.appendChild(mediaIjuk);
 }
 
 // Public fiber-aware Global Production & Distribution renderer.
