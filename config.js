@@ -8,6 +8,6 @@ window.NATFIBER_CONFIG = {
 if (/\/admin\.html$/.test(window.location.pathname)) {
   const s = document.createElement('script');
   s.type = 'module';
-  s.src = 'fiber-admin-switcher.js?v=1.2';
+  s.src = 'fiber-admin-switcher-v1.3.js?v=1.3';
   document.head.appendChild(s);
 }
