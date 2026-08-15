@@ -1,4 +1,4 @@
-// NatFiber Encyclopedia — client configuration v1.4
+// NatFiber Encyclopedia — client configuration v1.4 + Gold Standard badge
 window.NATFIBER_CONFIG={
   supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',
   publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
@@ -19,11 +19,11 @@ if(/\/admin\.html$/.test(window.location.pathname)){
   nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0',{module:true});
   nfLoadScript('admin-dashboard-fiber-aware-v1.4.js?v=1.4',{module:true});
 }else{
-  // app.js and characterization.js are loaded by index.html before window.load.
-  // Load the fiber-aware global renderer first, then QA overlay.
   window.addEventListener('load',()=>{
     nfLoadScript('global-footprint-fiber-aware-v1.4.js?v=1.4',{
-      onload:()=>nfLoadScript('public-qa-fiber-aware-v1.4.js?v=1.4')
+      onload:()=>nfLoadScript('public-qa-fiber-aware-v1.4.js?v=1.4',{
+        onload:()=>nfLoadScript('quality-certification-v1.0.js?v=1.0')
+      })
     });
   },{once:true});
 }
