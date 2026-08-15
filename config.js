@@ -1,4 +1,4 @@
-// NatFiber Encyclopedia — client configuration v1.5.6 stable admin
+// NatFiber Encyclopedia — client configuration v1.5.7 visibility fix
 window.NATFIBER_CONFIG={
   supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',
   publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
@@ -16,7 +16,7 @@ function nfLoadScript(src,{module=false,onload=null,onerror=null}={}){
 
 if(/\/admin\.html$/.test(window.location.pathname)){
   nfLoadScript('admin-dashboard-fiber-aware-v1.5.6.js?v=1.5.6',{module:true});
-  nfLoadScript('fiber-admin-switcher-v1.3.js?v=1.3.3',{module:true});
+  nfLoadScript('fiber-admin-switcher-v1.3.4.js?v=1.3.4',{module:true});
   nfLoadScript('ijuk-global-admin-v1.1.js?v=1.1.3',{module:true});
   nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0.3',{module:true});
   nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0.3',{module:true});
