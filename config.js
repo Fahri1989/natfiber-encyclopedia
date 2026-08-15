@@ -1,4 +1,4 @@
-// NatFiber Encyclopedia — client configuration v1.5.9 Stage 4A visibility contract
+// NatFiber Encyclopedia — client configuration v1.6.0 NF-0003 Full Record
 window.NATFIBER_CONFIG={
   supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',
   publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
@@ -21,11 +21,11 @@ if(/\/admin\.html$/.test(window.location.pathname)){
   nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0.3',{module:true});
   nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0.3',{module:true});
   nfLoadScript('sisal-gold-audit-admin-v1.0.js?v=1.0.3',{module:true});
-
-  // Stage 4A Applications release — independent loader.
   nfLoadScript('ijuk-applications-t4-release-admin-v1.1.js?v=1.1',{module:true});
 
-  // Product Media Data Entry only. Release Preview is loaded directly by admin.html.
+  // NF-0003 Jute — initial full-record workflow. Also adds Jute to the Admin fiber selector.
+  nfLoadScript('jute-full-record-admin-v1.0.js?v=1.0',{module:true});
+
   nfLoadScript('product-media-admin-v1.2.js?v=1.2',{
     module:true,
     onload:()=>nfLoadScript('product-media-quick-entry-v1.2.1.js?v=1.2.1')
