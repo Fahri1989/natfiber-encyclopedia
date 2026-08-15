@@ -1,8 +1,9 @@
-// NatFiber Encyclopedia — client configuration v1.5.3 stable
+// NatFiber Encyclopedia — client configuration v1.5.4 stable release panel
 window.NATFIBER_CONFIG={
   supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',
   publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
 };
+
 function nfLoadScript(src,{module=false,onload=null}={}){
   const s=document.createElement('script');
   if(module)s.type='module';
@@ -10,26 +11,28 @@ function nfLoadScript(src,{module=false,onload=null}={}){
   if(onload)s.onload=onload;
   document.head.appendChild(s);
 }
+
 if(/\/admin\.html$/.test(window.location.pathname)){
-  nfLoadScript('fiber-admin-switcher-v1.3.js?v=1.3',{module:true});
-  nfLoadScript('ijuk-global-admin-v1.1.js?v=1.1',{module:true});
-  nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0',{module:true});
-  nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0',{module:true});
-  nfLoadScript('admin-dashboard-fiber-aware-v1.5.js?v=1.5',{module:true});
-  nfLoadScript('sisal-gold-audit-admin-v1.0.js?v=1.0',{module:true});
-  nfLoadScript('product-media-admin-v1.1.js?v=1.1',{
+  nfLoadScript('fiber-admin-switcher-v1.3.js?v=1.3.1',{module:true});
+  nfLoadScript('ijuk-global-admin-v1.1.js?v=1.1.1',{module:true});
+  nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0.1',{module:true});
+  nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0.1',{module:true});
+  nfLoadScript('admin-dashboard-fiber-aware-v1.5.js?v=1.5.4',{module:true});
+  nfLoadScript('sisal-gold-audit-admin-v1.0.js?v=1.0.1',{module:true});
+  nfLoadScript('product-media-admin-v1.1.js?v=1.1.2',{
     module:true,
     onload:()=>{
-      nfLoadScript('product-media-quick-entry-v1.2.js?v=1.2');
-      nfLoadScript('product-release-status-v1.0.js?v=1.0',{module:true});
+      nfLoadScript('product-media-quick-entry-v1.2.js?v=1.2.2');
+      nfLoadScript('product-release-status-v1.0.js?v=1.0.1',{module:true});
+      nfLoadScript('product-release-panel-v1.1.js?v=1.1',{module:true});
     }
   });
 }else{
   window.addEventListener('load',()=>{
-    nfLoadScript('global-footprint-fiber-aware-v1.4.js?v=1.4',{
-      onload:()=>nfLoadScript('public-qa-fiber-aware-v1.4.js?v=1.4',{
-        onload:()=>nfLoadScript('quality-certification-v1.0.js?v=1.0',{
-          onload:()=>nfLoadScript('product-application-gallery-v1.1.js?v=1.1',{module:true})
+    nfLoadScript('global-footprint-fiber-aware-v1.4.js?v=1.4.1',{
+      onload:()=>nfLoadScript('public-qa-fiber-aware-v1.4.js?v=1.4.1',{
+        onload:()=>nfLoadScript('quality-certification-v1.0.js?v=1.0.1',{
+          onload:()=>nfLoadScript('product-application-gallery-v1.1.js?v=1.1.1',{module:true})
         })
       })
     });
