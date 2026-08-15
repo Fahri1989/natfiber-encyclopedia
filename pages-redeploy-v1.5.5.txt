@@ -1,0 +1,4 @@
+NatFiber Encyclopedia — GitHub Pages redeploy trigger
+Target version: v1.5.5
+Reason: the latest main commit was not picked up by the previous GitHub Pages workflow.
+Safe to keep or delete after deployment.
