@@ -1,4 +1,4 @@
-// NatFiber Encyclopedia — client configuration v1.4 + Gold Standard badge
+// NatFiber Encyclopedia — client configuration v1.4 + Gold Standard + Sisal audit fix
 window.NATFIBER_CONFIG={
   supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',
   publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
@@ -18,6 +18,7 @@ if(/\/admin\.html$/.test(window.location.pathname)){
   nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0',{module:true});
   nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0',{module:true});
   nfLoadScript('admin-dashboard-fiber-aware-v1.4.js?v=1.4',{module:true});
+  nfLoadScript('sisal-gold-audit-admin-v1.0.js?v=1.0',{module:true});
 }else{
   window.addEventListener('load',()=>{
     nfLoadScript('global-footprint-fiber-aware-v1.4.js?v=1.4',{
