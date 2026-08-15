@@ -1,4 +1,4 @@
-// NatFiber Encyclopedia — client configuration v1.5.7 visibility fix
+// NatFiber Encyclopedia — client configuration v1.5.8 Stage 4A applications release
 window.NATFIBER_CONFIG={
   supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',
   publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'
@@ -21,6 +21,9 @@ if(/\/admin\.html$/.test(window.location.pathname)){
   nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0.3',{module:true});
   nfLoadScript('ijuk-characterization-dr3-admin-v1.0.js?v=1.0.3',{module:true});
   nfLoadScript('sisal-gold-audit-admin-v1.0.js?v=1.0.3',{module:true});
+
+  // Stage 4A Applications release — independent loader.
+  nfLoadScript('ijuk-applications-t4-release-admin-v1.0.js?v=1.0',{module:true});
 
   // Product Media Data Entry only. Release Preview is loaded directly by admin.html.
   nfLoadScript('product-media-admin-v1.2.js?v=1.2',{
