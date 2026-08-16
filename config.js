@@ -1,4 +1,4 @@
-// NatFiber Encyclopedia — client configuration v1.6.5 NF-0005 Hemp public media fix
+// NatFiber Encyclopedia — client configuration v1.7.0 NF-0006–NF-0025 Batch Admin Release
 window.NATFIBER_CONFIG={supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'};
 function nfLoadScript(src,{module=false,onload=null,onerror=null}={}){const s=document.createElement('script');if(module)s.type='module';s.src=src;if(onload)s.onload=onload;if(onerror)s.onerror=onerror;document.head.appendChild(s);return s;}
 if(/\/admin\.html$/.test(window.location.pathname)){
@@ -14,6 +14,7 @@ if(/\/admin\.html$/.test(window.location.pathname)){
  nfLoadScript('flax-full-record-admin-v1.0.js?v=1.0',{module:true});
  nfLoadScript('flax-post-audit-release-admin-v1.0.js?v=1.0',{module:true});
  nfLoadScript('hemp-full-record-admin-v1.0.js?v=1.0',{module:true});
+ nfLoadScript('batch-full-record-admin-v1.0.js?v=1.0',{module:true});
  nfLoadScript('product-media-admin-v1.2.js?v=1.2',{module:true,onload:()=>nfLoadScript('product-media-quick-entry-v1.2.1.js?v=1.2.1')});
 }else{
  window.addEventListener('load',()=>{
