@@ -1,8 +1,22 @@
 /*
  NatFiber Encyclopedia — Product Media Release Panel v1.2
  Independent loader-safe panel. Must render even if Product Media Data Entry fails.
+ Patch v1.2.2: bootstraps fiber-aware Admin modules, including NF-0005 Hemp.
 */
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+(async()=>{
+  const modules=[
+    './fiber-admin-switcher-v1.3.4.js?v=1.3.5',
+    './jute-full-record-admin-v1.0.js?v=1.0.1',
+    './flax-full-record-admin-v1.0.js?v=1.0.1',
+    './hemp-full-record-admin-v1.0.js?v=1.0.0'
+  ];
+  for(const mod of modules){
+    try{ await import(mod); }
+    catch(e){ console.error('[NatFiber Admin bootstrap] failed:',mod,e); }
+  }
+})();
 
 window.NATFIBER_RELEASE_PANEL_V12 = true;
 
@@ -58,7 +72,6 @@ function ensure(){
   const host=$('#view-preview');
   if(!host) return null;
 
-  // Kill all previous variants to avoid duplicates.
   $('#nfProductMediaPreviewPanel')?.remove();
   $('#nfProductReleasePanelV11')?.remove();
 
@@ -101,7 +114,6 @@ async function resolveRole(){
 
 async function state(id){
   const rg=releaseGroup(id);
-  // Use the release-preview RPC first; it is the canonical editor-facing source.
   const p=await rpc('get_natfiber_supplement_preview',{
     target_fiber_id:id,
     target_release_group:rg
@@ -213,7 +225,7 @@ function boot(){
     const id=activeFiber();
     if(id!==lastFiber) refresh();
   },1200);
-  console.info('[NatFiber] Product Release Panel v1.2 loaded independently.');
+  console.info('[NatFiber] Product Release Panel v1.2.2 loaded with fiber-aware Admin bootstrap.');
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
 else boot();
