@@ -1,9 +1,10 @@
-// NatFiber Encyclopedia — client configuration v1.7.1 · Admin Stabilization Patch 1
-window.NATFIBER_EDITOR_VERSION='1.6.0';
+// NatFiber Encyclopedia — client configuration v1.7.2 · Admin Stabilization Patch 2
+window.NATFIBER_EDITOR_VERSION='1.6.1';
 window.NATFIBER_CONFIG={supabaseUrl:'https://ennnhgrffgoeqjvhpelh.supabase.co',publishableKey:'sb_publishable_ftskQZKSALKljnfIfY635g_YR-vvO4H'};
 function nfLoadScript(src,{module=false,onload=null,onerror=null}={}){const s=document.createElement('script');if(module)s.type='module';s.src=src;if(onload)s.onload=onload;if(onerror)s.onerror=onerror;document.head.appendChild(s);return s;}
 if(/\/admin\.html$/.test(window.location.pathname)){
- nfLoadScript('admin-stabilization-v1.6.0.js?v=1.6.0',{onload:()=>{
+ nfLoadScript('admin-stabilization-v1.6.0.js?v=1.6.1',{onload:()=>{
+   nfLoadScript('admin-review-release-router-v1.6.1.js?v=1.6.1');
    nfLoadScript('fiber-admin-switcher-v1.3.4.js?v=1.3.4',{module:true});
    nfLoadScript('ijuk-global-admin-v1.1.js?v=1.1.3',{module:true});
    nfLoadScript('ijuk-media-admin-v1.0.js?v=1.0.3',{module:true});
